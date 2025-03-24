@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vnairlines.csdl.dtos.FlightDetailDto;
+import com.vnairlines.csdl.dtos.SeatInventoryDto;
 import com.vnairlines.csdl.models.Flight;
 import com.vnairlines.csdl.services.FlightService;
 
@@ -59,4 +60,11 @@ public class FlightController {
         flightService.deleteFlight(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/{id}/seats")
+    public ResponseEntity<List<SeatInventoryDto>> getSeatInventoryByFlightId(@PathVariable UUID id) {
+        List<SeatInventoryDto> seatInventory = flightService.getSeatInventoryByFlightId(id);
+        return ResponseEntity.ok(seatInventory);
+    }
+
 }

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.vnairlines.csdl.dtos.FlightDetailDto;
+import com.vnairlines.csdl.dtos.SeatInventoryDto;
 import com.vnairlines.csdl.models.Flight;
 
 public interface FlightService {
@@ -18,4 +19,7 @@ public interface FlightService {
     void updateFlight(UUID id, Flight flight);
 
     void deleteFlight(UUID id);
+
+    // SEAT
+    List<SeatInventoryDto> getSeatInventoryByFlightId(UUID flightId);
 }
