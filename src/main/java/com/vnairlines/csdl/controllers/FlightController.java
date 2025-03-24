@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vnairlines.csdl.dtos.FlightDetailDto;
 import com.vnairlines.csdl.models.Flight;
 import com.vnairlines.csdl.services.FlightService;
 
@@ -32,7 +33,7 @@ public class FlightController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Flight> getFlightById(@PathVariable UUID id) {
+    public ResponseEntity<FlightDetailDto> getFlightById(@PathVariable UUID id) {
         return ResponseEntity.ok(flightService.getFlightById(id));
     }
 
