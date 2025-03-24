@@ -43,10 +43,8 @@ public class FlightServiceImpl implements FlightService {
 
     @Override
     public Flight getFlightById(UUID id) {
-        return jdbcTemplate.query("SELECT * FROM flights WHERE flight_id = ?", rowMapper, id)
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Flight not found"));
+        return jdbcTemplate.query("SELECT * FROM flights WHERE flight_id = ?", rowMapper, id).stream().findFirst()
+                .orElseThrow(() -> new RuntimeException("flights not found"));
     }
 
     @Override

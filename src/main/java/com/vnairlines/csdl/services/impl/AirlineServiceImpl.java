@@ -34,7 +34,7 @@ public class AirlineServiceImpl implements AirlineService {
     @Override
     public Airline getAirlineById(UUID id) {
         String sql = "SELECT * FROM airlines WHERE airline_id = ?";
-        return jdbcTemplate.query(sql, rowMapper, id.toString()).stream().findFirst()
+        return jdbcTemplate.query(sql, rowMapper, id).stream().findFirst()
                 .orElseThrow(() -> new RuntimeException("Airline not found"));
     }
 

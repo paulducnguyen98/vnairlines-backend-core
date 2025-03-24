@@ -37,7 +37,7 @@ public class AirportServiceImpl implements AirportService {
     @Override
     public Airport getAirportById(UUID id) {
         String sql = "SELECT * FROM airports WHERE airport_id = ?";
-        return jdbcTemplate.query(sql, rowMapper, id.toString()).stream().findFirst()
+        return jdbcTemplate.query(sql, rowMapper, id).stream().findFirst()
                 .orElseThrow(() -> new RuntimeException("Airport not found"));
     }
 
