@@ -1,5 +1,6 @@
 package com.vnairlines.csdl.services;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,8 @@ public interface FlightService {
 
     void deleteFlight(UUID id);
 
+    List<FlightDetailDto> searchFlights(UUID departureAirportId, UUID arrivalAirportId, 
+            LocalDate departureDate, LocalDate returnDate);
     // SEAT
     List<SeatInventoryDto> getSeatInventoryByFlightId(UUID flightId);
 }

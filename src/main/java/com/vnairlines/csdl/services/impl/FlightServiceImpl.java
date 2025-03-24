@@ -1,5 +1,6 @@
 package com.vnairlines.csdl.services.impl;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -154,5 +155,46 @@ public class FlightServiceImpl implements FlightService {
         seatInventory.setUpdatedAt(rs.getTimestamp("updated_at"));
         return seatInventory;
     };
+
+    @Override
+    public List<FlightDetailDto> searchFlights(UUID departureAirportId, UUID arrivalAirportId, 
+                                               LocalDate departureDate, LocalDate returnDate) {
+        StringBuilder sql = new StringBuilder("""
+            SELECT f.*, da.airport_code AS departure_airport_code, da.airport_name AS departure_airport_name, da.city as departure_city, da.country as departure_country, 
+                   aa.airport_code AS arrival_airport_code, aa.airport_name AS arrival_airport_name, aa.city as arrival_city, aa.country as arrival_country, 
+                   ac.aircraft_type, ac.total_seats, ac.row_count, ac.seat_per_row
+            FROM flights f
+            LEFT JOIN airports da ON f.departure_airport_id = da.airport_id
+            LEFT JOIN airports aa ON f.arrival_airport_id = aa.airport_id
+            LEFT JOIN aircrafts ac ON f.aircraft_id = ac.aircraft_id
+            WHERE f.departure_time::date = ?
+            AND f.departure_airport_id = ? AND f.arrival_airport_id = ?
+        """);
+
+        // Xử lý trường hợp chuyến bay một chiều
+        if (returnDate == null) {
+            return jdbcTemplate.query(sql.toString(), flightDetailRowMapper, departureDate, departureAirportId, arrivalAirportId);
+        } 
+        // Xử lý trường hợp chuyến bay khứ hồi
+        else {
+            StringBuilder returnSql = new StringBuilder("""
+                SELECT f.*, da.airport_code AS departure_airport_code, da.airport_name AS departure_airport_name, da.city as departure_city, da.country as departure_country, 
+                       aa.airport_code AS arrival_airport_code, aa.airport_name AS arrival_airport_name, aa.city as arrival_city, aa.country as arrival_country, 
+                       ac.aircraft_type, ac.total_seats, ac.row_count, ac.seat_per_row
+                FROM flights f
+                LEFT JOIN airports da ON f.departure_airport_id = da.airport_id
+                LEFT JOIN airports aa ON f.arrival_airport_id = aa.airport_id
+                LEFT JOIN aircrafts ac ON f.aircraft_id = ac.aircraft_id
+                WHERE f.departure_time::date = ?
+                AND f.departure_airport_id = ? AND f.arrival_airport_id = ?
+            """);
+
+            List<FlightDetailDto> outboundFlights = jdbcTemplate.query(sql.toString(), flightDetailRowMapper, departureDate, departureAirportId, arrivalAirportId);
+            List<FlightDetailDto> returnFlights = jdbcTemplate.query(returnSql.toString(), flightDetailRowMapper, returnDate, arrivalAirportId, departureAirportId);
+
+            outboundFlights.addAll(returnFlights);
+            return outboundFlights;
+        }
+    }
 
 }

@@ -1,8 +1,10 @@
 package com.vnairlines.csdl.controllers;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vnairlines.csdl.dtos.FlightDetailDto;
@@ -67,4 +70,14 @@ public class FlightController {
         return ResponseEntity.ok(seatInventory);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<List<FlightDetailDto>> searchFlights(
+            @RequestParam UUID departureAirportId,
+            @RequestParam UUID arrivalAirportId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrrivalDate) {
+        List<FlightDetailDto> flights = flightService.searchFlights(departureAirportId, arrivalAirportId, 
+                                                                   departureDate, arrrivalDate);
+        return ResponseEntity.ok(flights);
+    }
 }
