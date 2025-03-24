@@ -16,12 +16,17 @@ To verify: java -version
 Path: src/main/resources/application.properties
 Replace your db information
 
-# Build project
+
+## Use either 1 or 2 to run project
+#1 Build project
 ./mvn clean install
 
-# Run project
-./mvn spring-boot:run
-
+#2. Run project
+# Build project at root folder
+mvn clean install 
+# cd to target folder
+cd target
+java -jar csdl-0.0.1-SNAPSHOT.jar
 
 # API Access
 
