@@ -42,46 +42,6 @@ public class FlightServiceImpl implements FlightService {
         return f;
     };
 
-//    private final RowMapper<FlightDetailDto> flightDetailRowMapper = (rs, rowNum) -> {
-//        FlightDetailDto flightDTO = new FlightDetailDto();
-//        flightDTO.setFlightId(UUID.fromString(rs.getString("flight_id")));
-//        flightDTO.setFlightNumber(rs.getString("flight_number"));
-//        flightDTO.setDepartureTime(rs.getTimestamp("departure_time"));
-//        flightDTO.setArrivalTime(rs.getTimestamp("arrival_time"));
-//        flightDTO.setSeatCapacity(rs.getInt("seat_capacity"));
-//        flightDTO.setBasePrice(rs.getBigDecimal("base_price"));
-//
-//        // Thông tin sân bay khởi hành
-//        flightDTO.setDepartureAirport(new AirportDto(
-//                UUID.fromString(rs.getString("departure_airport_id")),
-//                rs.getString("departure_airport_code"),
-//                rs.getString("departure_airport_name"),
-//                rs.getString("departure_city"),
-//                rs.getString("departure_country")
-//        ));
-//
-//        // Thông tin sân bay đến
-//        flightDTO.setArrivalAirport(new AirportDto(
-//                UUID.fromString(rs.getString("arrival_airport_id")),
-//                rs.getString("arrival_airport_code"),
-//                rs.getString("arrival_airport_name"),
-//                rs.getString("arrival_city"),
-//                rs.getString("arrival_country")
-//        ));
-//
-//        // Thông tin máy bay
-//        flightDTO.setAircraftType(rs.getString("aircraft_type"));
-//        flightDTO.setTotalSeats(rs.getInt("total_seats"));
-//        flightDTO.setRowCount(rs.getInt("row_count"));
-//        flightDTO.setSeatPerRow(rs.getInt("seat_per_row"));
-//
-//        // Thông tin vé
-//        flightDTO.setTicketClass(rs.getString("ticket_class")); // Loại vé
-//        flightDTO.setTicketPrice(rs.getBigDecimal("ticket_price")); // Giá vé theo loại ghế
-//
-//        return flightDTO;
-//    };
-
     private final RowMapper<FlightDetailDto> flightDetailRowMapper = (rs, rowNum) -> {
         FlightDetailDto flightDTO = new FlightDetailDto();
         flightDTO.setFlightId(UUID.fromString(rs.getString("flight_id")));
