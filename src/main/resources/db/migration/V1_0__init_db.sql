@@ -190,3 +190,65 @@ CREATE TABLE check_in (
     check_in_time TIMESTAMP DEFAULT NOW()
 );
 
+
+CREATE TABLE fare_classes (
+    fare_class_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    ticket_class ticket_class_type NOT NULL UNIQUE,
+    base_price DECIMAL(10,2) NOT NULL
+);
+
+INSERT INTO fare_classes (fare_class_id, ticket_class, base_price)
+VALUES 
+    (gen_random_uuid(), 'ECONOMY', 100.00),
+    (gen_random_uuid(), 'BUSINESS', 250.00),
+    (gen_random_uuid(), 'FIRST', 500.00);
+
+    
+CREATE TABLE fare_rules (
+    fare_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    flight_id UUID REFERENCES flights(flight_id) ON DELETE CASCADE,
+    fare_class_id UUID REFERENCES fare_classes(fare_class_id) ON DELETE CASCADE,
+    base_fare DECIMAL(10,2) NOT NULL
+);
+
+CREATE TABLE fare_adjustments (
+    adjustment_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    flight_id UUID REFERENCES flights(flight_id) ON DELETE CASCADE NOT NULL,
+    fare_class_id UUID REFERENCES fare_classes(fare_class_id) NOT NULL,
+    discount_percentage DECIMAL(5,2) DEFAULT 0,  -- Ex: -20% for a promo
+    surcharge_percentage DECIMAL(5,2) DEFAULT 0,  -- Ex: +10% for peak hours
+    start_time TIMESTAMP NOT NULL,  -- When the discount/surcharge starts
+    end_time TIMESTAMP NOT NULL     -- When it ends
+);
+
+CREATE OR REPLACE FUNCTION generate_fares_for_new_flight()
+RETURNS TRIGGER AS $$
+DECLARE
+    fare_class RECORD;
+    departure_airport_id UUID;
+    arrival_airport_id UUID;
+    base_fare DECIMAL(10,2);
+BEGIN
+    -- Get departure and arrival airports from the flights table
+    SELECT f.departure_airport_id, f.arrival_airport_id 
+    INTO departure_airport_id, arrival_airport_id
+    FROM flights f WHERE f.flight_id = NEW.flight_id;
+
+    -- Loop through each fare class and insert base fares
+    FOR fare_class IN SELECT * FROM fare_classes LOOP
+        -- Example base fare logic (you may adjust it)
+        base_fare := fare_class.base_price;
+
+        INSERT INTO fare_rules (fare_id, flight_id, fare_class_id, base_fare)
+        VALUES (gen_random_uuid(), NEW.flight_id, fare_class.fare_class_id, base_fare);
+    END LOOP;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Trigger when a flight is created
+CREATE TRIGGER trigger_generate_fares
+AFTER INSERT ON flights
+FOR EACH ROW EXECUTE FUNCTION generate_fares_for_new_flight();
+

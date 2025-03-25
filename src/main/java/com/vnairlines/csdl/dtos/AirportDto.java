@@ -19,6 +19,10 @@ public class AirportDto {
         this.country = country;
     }
 
+    public AirportDto() {
+        // TODO Auto-generated constructor stub
+    }
+
     public UUID getId() {
         return id;
     }

@@ -2,6 +2,8 @@ package com.vnairlines.csdl.dtos;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class FlightDetailDto {
@@ -10,7 +12,7 @@ public class FlightDetailDto {
     private Timestamp departureTime;
     private Timestamp arrivalTime;
     private int seatCapacity;
-    private BigDecimal basePrice;
+    private BigDecimal basePrice; // Giá cơ bản của chuyến bay
 
     private AirportDto departureAirport;
     private AirportDto arrivalAirport;
@@ -19,6 +21,16 @@ public class FlightDetailDto {
     private int totalSeats;
     private int rowCount;
     private int seatPerRow;
+
+    private List<TicketPriceDto> ticketPrices = new ArrayList<>();;
+
+    public List<TicketPriceDto> getTicketPrices() {
+        return ticketPrices;
+    }
+
+    public void setTicketPrices(List<TicketPriceDto> ticketPrices) {
+        this.ticketPrices = ticketPrices;
+    }
 
     public UUID getFlightId() {
         return flightId;
@@ -115,4 +127,5 @@ public class FlightDetailDto {
     public void setSeatPerRow(int seatPerRow) {
         this.seatPerRow = seatPerRow;
     }
+
 }

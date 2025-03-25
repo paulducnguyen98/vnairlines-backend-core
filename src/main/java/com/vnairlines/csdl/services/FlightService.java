@@ -6,10 +6,11 @@ import java.util.UUID;
 
 import com.vnairlines.csdl.dtos.FlightDetailDto;
 import com.vnairlines.csdl.dtos.SeatInventoryDto;
+import com.vnairlines.csdl.enums.TicketClassType;
 import com.vnairlines.csdl.models.Flight;
 
 public interface FlightService {
-    List<Flight> getAllFlights();
+    List<FlightDetailDto> getAllFlights();
 
     FlightDetailDto getFlightById(UUID id);
 
@@ -22,7 +23,7 @@ public interface FlightService {
     void deleteFlight(UUID id);
 
     List<FlightDetailDto> searchFlights(String departureAirportCode, String arrrivalAirportCode,
-            LocalDate departureDate, LocalDate returnDate);
+            LocalDate departureDate, LocalDate returnDate, TicketClassType ticketClass);
 
     // SEAT
     List<SeatInventoryDto> getSeatInventoryByFlightId(UUID flightId);

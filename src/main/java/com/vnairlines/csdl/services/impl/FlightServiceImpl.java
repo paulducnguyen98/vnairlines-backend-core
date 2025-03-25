@@ -1,7 +1,11 @@
 package com.vnairlines.csdl.services.impl;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -11,6 +15,8 @@ import org.springframework.stereotype.Service;
 import com.vnairlines.csdl.dtos.AirportDto;
 import com.vnairlines.csdl.dtos.FlightDetailDto;
 import com.vnairlines.csdl.dtos.SeatInventoryDto;
+import com.vnairlines.csdl.dtos.TicketPriceDto;
+import com.vnairlines.csdl.enums.TicketClassType;
 import com.vnairlines.csdl.models.Flight;
 import com.vnairlines.csdl.services.FlightService;
 
@@ -55,41 +61,175 @@ public class FlightServiceImpl implements FlightService {
                 rs.getString("arrival_airport_code"), rs.getString("arrival_airport_name"),
                 rs.getString("arrival_city"), rs.getString("arrival_country")));
 
-        // Thông tin máy bay
         flightDTO.setAircraftType(rs.getString("aircraft_type"));
         flightDTO.setTotalSeats(rs.getInt("total_seats"));
         flightDTO.setRowCount(rs.getInt("row_count"));
         flightDTO.setSeatPerRow(rs.getInt("seat_per_row"));
 
+        // Lấy danh sách giá vé
+        do {
+            String ticketClass = rs.getString("ticket_class");
+            BigDecimal ticketPrice = rs.getBigDecimal("ticket_price");
+            if (ticketClass != null && ticketPrice != null) {
+                flightDTO.getTicketPrices().add(new TicketPriceDto(ticketClass, ticketPrice));
+            }
+        } while (rs.next());
+
         return flightDTO;
     };
 
     @Override
-    public List<Flight> getAllFlights() {
-        return jdbcTemplate.query("SELECT * FROM flights", rowMapper);
-    }
-
-//    @Override
-//    public Flight getFlightById(UUID id) {
-//        return jdbcTemplate.query("SELECT * FROM flights WHERE flight_id = ?", rowMapper, id).stream().findFirst()
-//                .orElseThrow(() -> new RuntimeException("flights not found"));
-//    }
-    @Override
-    public FlightDetailDto getFlightById(UUID id) {
+    public List<FlightDetailDto> getAllFlights() {
         String sql = """
-                    SELECT f.*,
-                           da.airport_id as departure_airport_id, da.airport_code AS departure_airport_code, da.airport_name AS departure_airport_name, da.city AS departure_city, da.country AS departure_country,
-                           aa.airport_id as arrival_airport_id, aa.airport_code AS arrival_airport_code, aa.airport_name AS arrival_airport_name, aa.city AS arrival_city, aa.country AS arrival_country,
-                           ac.aircraft_type, ac.total_seats, ac.row_count, ac.seat_per_row
+                    SELECT f.flight_id, f.flight_number, f.departure_time, f.arrival_time, f.seat_capacity, f.base_price,
+                           da.airport_id AS departure_airport_id, da.airport_code AS departure_airport_code, da.airport_name AS departure_airport_name, da.city AS departure_city, da.country AS departure_country,
+                           aa.airport_id AS arrival_airport_id, aa.airport_code AS arrival_airport_code, aa.airport_name AS arrival_airport_name, aa.city AS arrival_city, aa.country AS arrival_country,
+                           ac.aircraft_type, ac.total_seats, ac.row_count, ac.seat_per_row,
+                           fc.ticket_class, fr.base_fare AS ticket_price
                     FROM flights f
                     LEFT JOIN airports da ON f.departure_airport_id = da.airport_id
                     LEFT JOIN airports aa ON f.arrival_airport_id = aa.airport_id
                     LEFT JOIN aircrafts ac ON f.aircraft_id = ac.aircraft_id
-                    WHERE f.flight_id = ?
+                    LEFT JOIN fare_rules fr ON f.flight_id = fr.flight_id
+                    LEFT JOIN fare_classes fc ON fr.fare_class_id = fc.fare_class_id
+                    ORDER BY f.departure_time ASC
                 """;
 
-        return jdbcTemplate.query(sql, flightDetailRowMapper, id).stream().findFirst()
-                .orElseThrow(() -> new RuntimeException("Flight not found"));
+        List<FlightDetailDto> flights = jdbcTemplate.query(sql, (rs) -> {
+            Map<UUID, FlightDetailDto> flightMap = new HashMap<>();
+
+            while (rs.next()) {
+                UUID flightId = rs.getObject("flight_id", UUID.class);
+
+                // Check if we already added this flight
+                FlightDetailDto flight = flightMap.get(flightId);
+                if (flight == null) {
+                    flight = new FlightDetailDto();
+                    flight.setFlightId(flightId);
+                    flight.setFlightNumber(rs.getString("flight_number"));
+                    flight.setDepartureTime(rs.getTimestamp("departure_time"));
+                    flight.setArrivalTime(rs.getTimestamp("arrival_time"));
+                    flight.setSeatCapacity(rs.getInt("seat_capacity"));
+                    flight.setBasePrice(rs.getBigDecimal("base_price"));
+
+                    // Set departure airport
+                    AirportDto departureAirport = new AirportDto();
+                    departureAirport.setId(rs.getObject("departure_airport_id", UUID.class));
+                    departureAirport.setAirportCode(rs.getString("departure_airport_code"));
+                    departureAirport.setAirportName(rs.getString("departure_airport_name"));
+                    departureAirport.setCity(rs.getString("departure_city"));
+                    departureAirport.setCountry(rs.getString("departure_country"));
+                    flight.setDepartureAirport(departureAirport);
+
+                    // Set arrival airport
+                    AirportDto arrivalAirport = new AirportDto();
+                    arrivalAirport.setId(rs.getObject("arrival_airport_id", UUID.class));
+                    arrivalAirport.setAirportCode(rs.getString("arrival_airport_code"));
+                    arrivalAirport.setAirportName(rs.getString("arrival_airport_name"));
+                    arrivalAirport.setCity(rs.getString("arrival_city"));
+                    arrivalAirport.setCountry(rs.getString("arrival_country"));
+                    flight.setArrivalAirport(arrivalAirport);
+
+                    // Aircraft details
+                    flight.setAircraftType(rs.getString("aircraft_type"));
+                    flight.setTotalSeats(rs.getInt("total_seats"));
+                    flight.setRowCount(rs.getInt("row_count"));
+                    flight.setSeatPerRow(rs.getInt("seat_per_row"));
+
+                    // Initialize ticket prices list
+                    flight.setTicketPrices(new ArrayList<>());
+
+                    // Put in map
+                    flightMap.put(flightId, flight);
+                }
+
+                // Add ticket class & price
+                String ticketClass = rs.getString("ticket_class");
+                BigDecimal ticketPrice = rs.getBigDecimal("ticket_price");
+                if (ticketClass != null && ticketPrice != null) {
+                    flight.getTicketPrices().add(new TicketPriceDto(ticketClass, ticketPrice));
+                }
+            }
+
+            return new ArrayList<>(flightMap.values());
+        });
+
+        return flights;
+    }
+
+    @Override
+    public FlightDetailDto getFlightById(UUID id) {
+        String sql = """
+                    SELECT f.flight_id, f.flight_number, f.departure_time, f.arrival_time, f.seat_capacity, f.base_price,
+                           da.airport_id AS departure_airport_id, da.airport_code AS departure_airport_code, da.airport_name AS departure_airport_name, da.city AS departure_city, da.country AS departure_country,
+                           aa.airport_id AS arrival_airport_id, aa.airport_code AS arrival_airport_code, aa.airport_name AS arrival_airport_name, aa.city AS arrival_city, aa.country AS arrival_country,
+                           ac.aircraft_type, ac.total_seats, ac.row_count, ac.seat_per_row,
+                           fc.ticket_class, fr.base_fare AS ticket_price
+                    FROM flights f
+                    LEFT JOIN airports da ON f.departure_airport_id = da.airport_id
+                    LEFT JOIN airports aa ON f.arrival_airport_id = aa.airport_id
+                    LEFT JOIN aircrafts ac ON f.aircraft_id = ac.aircraft_id
+                    LEFT JOIN fare_rules fr ON f.flight_id = fr.flight_id
+                    LEFT JOIN fare_classes fc ON fr.fare_class_id = fc.fare_class_id
+                    WHERE f.flight_id = ?
+                    ORDER BY f.departure_time ASC
+                """;
+
+        return jdbcTemplate.query(sql, (rs) -> {
+            FlightDetailDto flight = null;
+
+            while (rs.next()) {
+                if (flight == null) {
+                    flight = new FlightDetailDto();
+                    flight.setFlightId(rs.getObject("flight_id", UUID.class));
+                    flight.setFlightNumber(rs.getString("flight_number"));
+                    flight.setDepartureTime(rs.getTimestamp("departure_time"));
+                    flight.setArrivalTime(rs.getTimestamp("arrival_time"));
+                    flight.setSeatCapacity(rs.getInt("seat_capacity"));
+                    flight.setBasePrice(rs.getBigDecimal("base_price"));
+
+                    // Set departure airport
+                    AirportDto departureAirport = new AirportDto();
+                    departureAirport.setId(rs.getObject("departure_airport_id", UUID.class));
+                    departureAirport.setAirportCode(rs.getString("departure_airport_code"));
+                    departureAirport.setAirportName(rs.getString("departure_airport_name"));
+                    departureAirport.setCity(rs.getString("departure_city"));
+                    departureAirport.setCountry(rs.getString("departure_country"));
+                    flight.setDepartureAirport(departureAirport);
+
+                    // Set arrival airport
+                    AirportDto arrivalAirport = new AirportDto();
+                    arrivalAirport.setId(rs.getObject("arrival_airport_id", UUID.class));
+                    arrivalAirport.setAirportCode(rs.getString("arrival_airport_code"));
+                    arrivalAirport.setAirportName(rs.getString("arrival_airport_name"));
+                    arrivalAirport.setCity(rs.getString("arrival_city"));
+                    arrivalAirport.setCountry(rs.getString("arrival_country"));
+                    flight.setArrivalAirport(arrivalAirport);
+
+                    // Aircraft details
+                    flight.setAircraftType(rs.getString("aircraft_type"));
+                    flight.setTotalSeats(rs.getInt("total_seats"));
+                    flight.setRowCount(rs.getInt("row_count"));
+                    flight.setSeatPerRow(rs.getInt("seat_per_row"));
+
+                    // Initialize ticket prices list
+                    flight.setTicketPrices(new ArrayList<>());
+                }
+
+                // Add ticket class & price
+                String ticketClass = rs.getString("ticket_class");
+                BigDecimal ticketPrice = rs.getBigDecimal("ticket_price");
+                if (ticketClass != null && ticketPrice != null) {
+                    flight.getTicketPrices().add(new TicketPriceDto(ticketClass, ticketPrice));
+                }
+            }
+
+            if (flight == null) {
+                throw new RuntimeException("Flight not found");
+            }
+
+            return flight;
+        }, id);
     }
 
     @Override
@@ -157,45 +297,68 @@ public class FlightServiceImpl implements FlightService {
     };
 
     @Override
-    public List<FlightDetailDto> searchFlights(String departureAirportCode, String arrrivalAirportCode,
-            LocalDate departureDate, LocalDate returnDate) {
+    public List<FlightDetailDto> searchFlights(String departureAirportCode, String arrivalAirportCode,
+            LocalDate departureDate, LocalDate returnDate, TicketClassType ticketClassType) {
+
         StringBuilder sql = new StringBuilder(
                 """
-                            SELECT f.*, da.airport_code AS departure_airport_code, da.airport_name AS departure_airport_name, da.city as departure_city, da.country as departure_country,
+                        SELECT f.*,
+                               da.airport_code AS departure_airport_code, da.airport_name AS departure_airport_name, da.city as departure_city, da.country as departure_country,
+                               aa.airport_code AS arrival_airport_code, aa.airport_name AS arrival_airport_name, aa.city as arrival_city, aa.country as arrival_country,
+                               ac.aircraft_type, ac.total_seats, ac.row_count, ac.seat_per_row,
+                               fr.base_fare AS ticket_price,
+                               fc.ticket_class
+                        FROM flights f
+                        LEFT JOIN airports da ON f.departure_airport_id = da.airport_id
+                        LEFT JOIN airports aa ON f.arrival_airport_id = aa.airport_id
+                        LEFT JOIN aircrafts ac ON f.aircraft_id = ac.aircraft_id
+                        LEFT JOIN fare_rules fr ON f.flight_id = fr.flight_id
+                        LEFT JOIN fare_classes fc ON fr.fare_class_id = fc.fare_class_id
+                        WHERE f.departure_time::date = ?
+                          AND da.airport_code = ?
+                          AND aa.airport_code = ?
+                        """);
+
+        List<Object> params = new ArrayList<>(List.of(departureDate, departureAirportCode, arrivalAirportCode));
+
+        if (ticketClassType != null) {
+            sql.append(" AND fc.ticket_class = ?::ticket_class_type");
+            params.add(ticketClassType.name());
+        }
+
+        if (returnDate == null) {
+            return jdbcTemplate.query(sql.toString(), flightDetailRowMapper, params.toArray());
+        } else {
+            StringBuilder returnSql = new StringBuilder(
+                    """
+                            SELECT f.*,
+                                   da.airport_code AS departure_airport_code, da.airport_name AS departure_airport_name, da.city as departure_city, da.country as departure_country,
                                    aa.airport_code AS arrival_airport_code, aa.airport_name AS arrival_airport_name, aa.city as arrival_city, aa.country as arrival_country,
-                                   ac.aircraft_type, ac.total_seats, ac.row_count, ac.seat_per_row
+                                   ac.aircraft_type, ac.total_seats, ac.row_count, ac.seat_per_row,
+                                   fr.base_fare AS ticket_price,
+                                   fc.ticket_class
                             FROM flights f
                             LEFT JOIN airports da ON f.departure_airport_id = da.airport_id
                             LEFT JOIN airports aa ON f.arrival_airport_id = aa.airport_id
                             LEFT JOIN aircrafts ac ON f.aircraft_id = ac.aircraft_id
+                            LEFT JOIN fare_rules fr ON f.flight_id = fr.flight_id
+                            LEFT JOIN fare_classes fc ON fr.fare_class_id = fc.fare_class_id
                             WHERE f.departure_time::date = ?
-                            AND da.airport_code = ? AND aa.airport_code = ?
-                        """);
-
-        // Xử lý trường hợp chuyến bay một chiều
-        if (returnDate == null) {
-            return jdbcTemplate.query(sql.toString(), flightDetailRowMapper, departureDate, departureAirportCode,
-                    arrrivalAirportCode);
-        }
-        // Xử lý trường hợp chuyến bay khứ hồi
-        else {
-            StringBuilder returnSql = new StringBuilder(
-                    """
-                                SELECT f.*, da.airport_code AS departure_airport_code, da.airport_name AS departure_airport_name, da.city as departure_city, da.country as departure_country,
-                                       aa.airport_code AS arrival_airport_code, aa.airport_name AS arrival_airport_name, aa.city as arrival_city, aa.country as arrival_country,
-                                       ac.aircraft_type, ac.total_seats, ac.row_count, ac.seat_per_row
-                                FROM flights f
-                                LEFT JOIN airports da ON f.departure_airport_id = da.airport_id
-                                LEFT JOIN airports aa ON f.arrival_airport_id = aa.airport_id
-                                LEFT JOIN aircrafts ac ON f.aircraft_id = ac.aircraft_id
-                                WHERE f.departure_time::date = ?
-                                AND da.airport_code = ? AND aa.airport_code = ?
+                              AND da.airport_code = ?
+                              AND aa.airport_code = ?
                             """);
 
+            List<Object> returnParams = new ArrayList<>(List.of(returnDate, arrivalAirportCode, departureAirportCode));
+
+            if (ticketClassType != null) {
+                returnSql.append(" AND fc.ticket_class = ?::ticket_class_type");
+                returnParams.add(ticketClassType.name());
+            }
+
             List<FlightDetailDto> outboundFlights = jdbcTemplate.query(sql.toString(), flightDetailRowMapper,
-                    departureDate, departureAirportCode, arrrivalAirportCode);
+                    params.toArray());
             List<FlightDetailDto> returnFlights = jdbcTemplate.query(returnSql.toString(), flightDetailRowMapper,
-                    returnDate, departureAirportCode, arrrivalAirportCode);
+                    returnParams.toArray());
 
             outboundFlights.addAll(returnFlights);
             return outboundFlights;

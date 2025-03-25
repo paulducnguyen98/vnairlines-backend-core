@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.vnairlines.csdl.dtos.FlightDetailDto;
 import com.vnairlines.csdl.dtos.SeatInventoryDto;
+import com.vnairlines.csdl.enums.TicketClassType;
 import com.vnairlines.csdl.models.Flight;
 import com.vnairlines.csdl.services.FlightService;
 
@@ -32,7 +33,7 @@ public class FlightController {
     }
 
     @GetMapping
-    public List<Flight> getAllFlights() {
+    public List<FlightDetailDto> getAllFlights() {
         return flightService.getAllFlights();
     }
 
@@ -74,9 +75,10 @@ public class FlightController {
     public ResponseEntity<List<FlightDetailDto>> searchFlights(@RequestParam String departureAirportCode,
             @RequestParam String arrrivalAirportCode,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrrivalDate) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrrivalDate,
+            @RequestParam(required = false) TicketClassType ticketClass) {
         List<FlightDetailDto> flights = flightService.searchFlights(departureAirportCode, arrrivalAirportCode,
-                departureDate, arrrivalDate);
+                departureDate, arrrivalDate, ticketClass);
         return ResponseEntity.ok(flights);
     }
 }
