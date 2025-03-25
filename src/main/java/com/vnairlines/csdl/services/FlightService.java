@@ -21,8 +21,9 @@ public interface FlightService {
 
     void deleteFlight(UUID id);
 
-    List<FlightDetailDto> searchFlights(UUID departureAirportId, UUID arrivalAirportId, 
+    List<FlightDetailDto> searchFlights(String departureAirportCode, String arrrivalAirportCode,
             LocalDate departureDate, LocalDate returnDate);
+
     // SEAT
     List<SeatInventoryDto> getSeatInventoryByFlightId(UUID flightId);
 }

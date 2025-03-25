@@ -71,13 +71,12 @@ public class FlightController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<FlightDetailDto>> searchFlights(
-            @RequestParam UUID departureAirportId,
-            @RequestParam UUID arrivalAirportId,
+    public ResponseEntity<List<FlightDetailDto>> searchFlights(@RequestParam String departureAirportCode,
+            @RequestParam String arrrivalAirportCode,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrrivalDate) {
-        List<FlightDetailDto> flights = flightService.searchFlights(departureAirportId, arrivalAirportId, 
-                                                                   departureDate, arrrivalDate);
+        List<FlightDetailDto> flights = flightService.searchFlights(departureAirportCode, arrrivalAirportCode,
+                departureDate, arrrivalDate);
         return ResponseEntity.ok(flights);
     }
 }
