@@ -10,7 +10,7 @@ import com.vnairlines.csdl.enums.TicketClassType;
 import com.vnairlines.csdl.models.Flight;
 
 public interface FlightService {
-    List<Flight> getAllFlights();
+    List<FlightDetailDto> getAllFlights();
 
     FlightDetailDto getFlightById(UUID id);
 

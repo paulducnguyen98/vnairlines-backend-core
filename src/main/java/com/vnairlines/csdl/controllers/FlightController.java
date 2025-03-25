@@ -33,7 +33,7 @@ public class FlightController {
     }
 
     @GetMapping
-    public List<Flight> getAllFlights() {
+    public List<FlightDetailDto> getAllFlights() {
         return flightService.getAllFlights();
     }
 
