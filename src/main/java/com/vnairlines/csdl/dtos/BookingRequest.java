@@ -12,13 +12,15 @@ public class BookingRequest {
     private String contactEmail;
     private String contactPhone;
     private BigDecimal totalPrice;
+    private String ticketClass; // "ECONOMY", "BUSINESS", "FIRST"
 
     public BookingRequest() {
         // TODO Auto-generated constructor stub
     }
 
     public BookingRequest(UUID userId, List<UUID> flightIds, String contactFirstName, String contactLastName,
-            String contactEmail, String contactPhone, BigDecimal totalPrice, List<PassengerRequest> passengers) {
+            String contactEmail, String contactPhone, BigDecimal totalPrice, List<PassengerRequest> passengers,
+            String ticketClass) {
         super();
         this.userId = userId;
         this.flightIds = flightIds;
@@ -28,6 +30,7 @@ public class BookingRequest {
         this.contactPhone = contactPhone;
         this.totalPrice = totalPrice;
         this.passengers = passengers;
+        this.ticketClass = ticketClass;
     }
 
     private List<PassengerRequest> passengers;
@@ -96,4 +99,11 @@ public class BookingRequest {
         this.passengers = passengers;
     }
 
+    public String getTicketClass() {
+        return ticketClass;
+    }
+
+    public void setTicketClass(String ticketClass) {
+        this.ticketClass = ticketClass;
+    }
 }
