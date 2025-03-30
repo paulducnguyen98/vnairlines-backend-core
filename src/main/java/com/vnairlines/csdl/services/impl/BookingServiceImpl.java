@@ -1,5 +1,6 @@
 package com.vnairlines.csdl.services.impl;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,7 +10,6 @@ import java.util.stream.Collectors;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
-import com.vnairlines.csdl.dtos.BookingDto;
 import com.vnairlines.csdl.dtos.BookingRequest;
 import com.vnairlines.csdl.dtos.BookingResponse;
 import com.vnairlines.csdl.dtos.PassengerResponse;
@@ -43,6 +43,7 @@ public class BookingServiceImpl implements BookingService {
 
                 Booking booking = new Booking();
                 booking.setBookingId(UUID.randomUUID());
+                booking.setTripReferenceId(UUID.randomUUID());
                 booking.setUserId(null);
                 booking.setBookingCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
                 booking.setContactFirstName(request.getContactFirstName());
@@ -117,10 +118,46 @@ public class BookingServiceImpl implements BookingService {
                     }
                 );
 
-                responses.add(BookingResponse.fromEntity(booking, passengers));
+                String ticketSql = """
+                        INSERT INTO tickets (
+                            ticket_id, passenger_id, flight_id, ticket_number,
+                            ticket_class, price, status, created_at
+                        ) VALUES (?, ?, ?, ?, ?::ticket_class_type, ?, 'BOOKED', ?)
+                    """;
+
+                    for (Passenger passenger : passengers) {
+                        UUID ticketId = UUID.randomUUID();
+                        String ticketNumber = "TK" + ticketId.toString().replace("-", "").substring(0, 8).toUpperCase();
+
+                        BigDecimal price = getFareForFlightAndClass(flightId, request.getTicketClass());
+
+                        jdbcTemplate.update(ticketSql,
+                            ticketId,
+                            passenger.getPassengerId(),
+                            flightId,
+                            ticketNumber,
+                            request.getTicketClass(),
+                            price,
+                            LocalDateTime.now()
+                        );
+                    }
+
+                    responses.add(BookingResponse.fromEntity(booking, passengers, request.getTicketClass()));
             }
 
         return responses;
+    }
+
+    private BigDecimal getFareForFlightAndClass(UUID flightId, String ticketClass) {
+        String sql = """
+            SELECT fr.base_fare
+            FROM fare_rules fr
+            JOIN fare_classes fc ON fr.fare_class_id = fc.fare_class_id
+            WHERE fr.flight_id = ? AND fc.ticket_class = ?::ticket_class_type
+            LIMIT 1
+        """;
+        
+        return jdbcTemplate.queryForObject(sql, BigDecimal.class, flightId, ticketClass);
     }
 
     @Override
