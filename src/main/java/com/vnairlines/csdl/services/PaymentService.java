@@ -2,16 +2,13 @@ package com.vnairlines.csdl.services;
 
 import java.util.UUID;
 
-import com.vnairlines.csdl.dtos.PaymentDto;
+import com.vnairlines.csdl.dtos.PaymentRequest;
+import com.vnairlines.csdl.dtos.PaymentResponse;
 
 public interface PaymentService {
-    PaymentDto getPaymentByBookingId(UUID bookingId);
+    PaymentResponse getPaymentByBookingId(UUID bookingId);
 
-    PaymentDto getPaymentById(UUID paymentId);
+    PaymentResponse getPaymentById(UUID paymentId);
 
-    void createPayment(PaymentDto paymentDto);
-
-    void updatePayment(UUID paymentId, PaymentDto paymentDto);
-
-    void deletePayment(UUID paymentId);
+    void createPayment(PaymentRequest paymentDto);
 }

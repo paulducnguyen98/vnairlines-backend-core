@@ -1,27 +1,44 @@
-package com.vnairlines.csdl.dtos;
+package com.vnairlines.csdl.models;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
-public class BookingDto {
+public class Booking {
+
     private UUID bookingId;
     private UUID userId;
+    private String bookingCode;
     private String contactFirstName;
     private String contactLastName;
     private String contactEmail;
     private String contactPhone;
-    private String bookingCode;
     private BigDecimal totalPrice;
-    private String status; // PENDING, COMPLETED, FAILED
-    private Timestamp createdAt;
-    private PaymentResponse payment;
+    private String status;
+    private LocalDateTime createdAt;
     private UUID tripReferenceId;
 
-    private List<TicketDto> tickets;
+    public Booking() {
+        // TODO Auto-generated constructor stub
+    }
 
-    // Getters and setters
+    public Booking(UUID bookingId, UUID userId, String bookingCode, String contactFirstName, String contactLastName,
+            String contactEmail, String contactPhone, BigDecimal totalPrice, String status, LocalDateTime createdAt,
+            UUID tripReferenceId) {
+        super();
+        this.bookingId = bookingId;
+        this.userId = userId;
+        this.bookingCode = bookingCode;
+        this.contactFirstName = contactFirstName;
+        this.contactLastName = contactLastName;
+        this.contactEmail = contactEmail;
+        this.contactPhone = contactPhone;
+        this.totalPrice = totalPrice;
+        this.status = status;
+        this.createdAt = createdAt;
+        this.tripReferenceId = tripReferenceId;
+    }
+
     public UUID getBookingId() {
         return bookingId;
     }
@@ -36,6 +53,14 @@ public class BookingDto {
 
     public void setUserId(UUID userId) {
         this.userId = userId;
+    }
+
+    public String getBookingCode() {
+        return bookingCode;
+    }
+
+    public void setBookingCode(String bookingCode) {
+        this.bookingCode = bookingCode;
     }
 
     public String getContactFirstName() {
@@ -70,14 +95,6 @@ public class BookingDto {
         this.contactPhone = contactPhone;
     }
 
-    public String getBookingCode() {
-        return bookingCode;
-    }
-
-    public void setBookingCode(String bookingCode) {
-        this.bookingCode = bookingCode;
-    }
-
     public BigDecimal getTotalPrice() {
         return totalPrice;
     }
@@ -94,28 +111,12 @@ public class BookingDto {
         this.status = status;
     }
 
-    public Timestamp getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Timestamp createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public PaymentResponse getPayment() {
-        return payment;
-    }
-
-    public void setPayment(PaymentResponse payment) {
-        this.payment = payment;
-    }
-
-    public List<TicketDto> getTickets() {
-        return tickets;
-    }
-
-    public void setTickets(List<TicketDto> tickets) {
-        this.tickets = tickets;
     }
 
     public UUID getTripReferenceId() {

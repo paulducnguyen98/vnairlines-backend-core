@@ -4,9 +4,10 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.UUID;
 
-public class PaymentDto {
+public class PaymentResponse {
     private UUID paymentId;
     private UUID bookingId;
+    private UUID tripReferenceId;
     private BigDecimal amount;
     private String paymentMethod; // PAYPAL, VNPAY, etc.
     private String status; // PENDING, COMPLETED, FAILED, REFUNDED
@@ -52,6 +53,14 @@ public class PaymentDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public UUID getTripReferenceId() {
+        return tripReferenceId;
+    }
+
+    public void setTripReferenceId(UUID tripReferenceId) {
+        this.tripReferenceId = tripReferenceId;
     }
 
     public String getTransactionId() {
