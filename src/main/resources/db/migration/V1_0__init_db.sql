@@ -38,18 +38,21 @@ CREATE TABLE cabins (
 );
 
 
-CREATE 	TYPE user_type as ENUM('CUSTOMER', 'GOLD_MEMBER', 'ADMIN');
 CREATE TABLE users (
     user_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    full_name VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
     phone_number VARCHAR(20) UNIQUE,
     password_hash TEXT NOT NULL,
-    user_type user_type NOT NULL,
+    is_admin BOOLEAN DEFAULT FALSE,         -- Quyền hệ thống (khác loyalty)
+    is_loyalty_member BOOLEAN DEFAULT FALSE, -- Đã tham gia chương trình BSV hay chưa
     created_at TIMESTAMP DEFAULT NOW()
 );
+
 CREATE INDEX idx_users_email ON users(email);
-	
+
+
 CREATE TABLE flights (
     flight_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     airline_id UUID REFERENCES airlines(airline_id),  -- Thay vì lưu tên hãng hàng không
@@ -252,3 +255,51 @@ CREATE TRIGGER trigger_generate_fares
 AFTER INSERT ON flights
 FOR EACH ROW EXECUTE FUNCTION generate_fares_for_new_flight();
 
+
+ALTER TABLE bookings ADD COLUMN trip_reference_id UUID;
+
+ALTER TABLE payments ADD COLUMN trip_reference_id UUID;
+
+ALTER TABLE payments
+    ADD CONSTRAINT chk_payment_target CHECK (
+        booking_id IS NOT NULL OR trip_reference_id IS NOT NULL
+    );
+
+    
+    
+CREATE TABLE membership_tiers (
+    tier_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    tier_name VARCHAR(50) UNIQUE NOT NULL,  -- Basic, Silver, Titanium, Gold, Platinum
+    tier_rank INT NOT NULL,  -- 1 (Basic) → 5 (Platinum)
+    required_miles INT NOT NULL,
+    required_flights INT NOT NULL,
+    benefits TEXT
+);
+
+
+CREATE TABLE user_loyalty_profiles (
+    user_id UUID PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
+    current_tier_id UUID REFERENCES membership_tiers(tier_id),
+    total_miles INT DEFAULT 0,
+    total_flights INT DEFAULT 0,
+    miles_expiry_date DATE,
+    tier_achieved_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE miles_transactions (
+    transaction_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(user_id),
+    flight_id UUID REFERENCES flights(flight_id),
+    miles_change INT NOT NULL,  -- có thể âm nếu trừ dặm
+    reason TEXT NOT NULL,  -- VD: “Flight completed”, “Redeemed for ticket”
+    transaction_time TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE mile_redemptions (
+    redemption_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID REFERENCES users(user_id),
+    miles_used INT NOT NULL,
+    redeemed_for TEXT,  -- VD: Ticket, Upgrade, Voucher
+    related_ticket_id UUID REFERENCES tickets(ticket_id),
+    redeemed_at TIMESTAMP DEFAULT NOW()
+);
