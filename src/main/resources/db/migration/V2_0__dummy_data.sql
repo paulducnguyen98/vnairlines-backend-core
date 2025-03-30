@@ -73,3 +73,40 @@ INSERT INTO flights (
  '2025-04-03 09:00:00', '2025-04-03 10:30:00', 'f778b5ac-1c41-4c00-99c0-308396aa5af0', 203, 950000.00),
  (gen_random_uuid(), 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN44', 'd67263f2-4556-485d-bcc8-4fa21a8ecd9c', 'bfb8ad07-c8f8-42ff-8746-2b09de9b7f2c',
  '2025-04-03 09:00:00', '2025-04-03 10:30:00', 'f2090cdf-d1d2-4ee3-96dd-e0724dfe3808', 203, 950000.00);
+
+INSERT INTO membership_tiers (tier_id, tier_name, tier_rank, required_miles, required_flights, benefits)
+VALUES
+    ('b85f04f9-538a-4c65-a5c8-e0b03b015b36', 'Basic',    1, 0,    0,    'Standard member benefits'),
+    ('af49e5ce-3a5d-42a5-a43b-2ab6d9c9d6e6', 'Silver',   2, 10000, 10,  'Priority check-in, 5kg baggage bonus'),
+    ('2c9d3d50-8f9c-4d23-84fd-1e390a5ce1f1', 'Gold',     3, 25000, 20,  'Lounge access, bonus miles'),
+    ('dbdcd22e-79a6-42dc-b9f1-6a92ae7f350e', 'Titanium', 4, 50000, 40,  'Business class upgrade, priority boarding'),
+    ('60bcbb15-8a50-42db-bdb0-071933dd5f79', 'Platinum', 5, 75000, 60,  'Unlimited lounge access, VIP hotline');
+
+
+INSERT INTO users (user_id, first_name, last_name, email, phone_number, password_hash, is_admin, is_loyalty_member, created_at)
+VALUES
+('2c9d3d50-8f9c-4d23-84fd-1e390a5ce1f1', 'Nguyen','Van A', 'a@example.com', '0900000001', 'hashed_pw_1', false, true, NOW()),
+('b85f04f9-538a-4c65-a5c8-e0b03b015b36', 'Tran', 'Thi B',  'b@example.com', '0900000002', 'hashed_pw_2', false, true, NOW()),
+('a122cbfc-0627-4c99-bdb9-f7277e98a8a9', 'Le', 'Van C',    'c@example.com', '0900000003', 'hashed_pw_3', false, true, NOW()),
+('af49e5ce-3a5d-42a5-a43b-2ab6d9c9d6e6', 'Pham', 'Thi D',  'd@example.com', '0900000004', 'hashed_pw_4', false, true, NOW()),
+('0f59fc27-49e2-4e1c-a264-2475c45c4909', 'Hoang', 'Van E', 'e@example.com', '0900000005', 'hashed_pw_5', false, true, NOW()),
+('dbdcd22e-79a6-42dc-b9f1-6a92ae7f350e', 'Do', 'Thi F',    'f@example.com', '0900000006', 'hashed_pw_6', false, true, NOW()),
+('4be7c2cb-3485-41f4-b8e6-41f3db041ed5', 'Nguyen', 'Van G','g@example.com', '0900000007', 'hashed_pw_7', false, true, NOW()),
+('f2cdabde-65b1-4a4c-b964-4e70e3cd4ed5', 'Pham', 'Thi H',  'h@example.com', '0900000008', 'hashed_pw_8', false, true, NOW()),
+('e0f06f5f-0f44-4c6f-8c1a-20d778ebd4df', 'Tran', 'Van I',  'i@example.com', '0900000009', 'hashed_pw_9', false, true, NOW()),
+('60bcbb15-8a50-42db-bdb0-071933dd5f79', 'Le', 'Thi J',    'j@example.com', '0900000010', 'hashed_pw_10', false, true, NOW());
+
+
+-- Ví dụ minh hoạ với user_id giả định (bạn cần thay bằng ID thực tế đã insert)
+INSERT INTO user_loyalty_profiles (user_id, current_tier_id, total_miles, total_flights, miles_expiry_date, tier_achieved_at)
+VALUES
+('2c9d3d50-8f9c-4d23-84fd-1e390a5ce1f1', 'b85f04f9-538a-4c65-a5c8-e0b03b015b36', 500, 2, NOW() + interval '12 months', NOW()),
+('b85f04f9-538a-4c65-a5c8-e0b03b015b36', 'b85f04f9-538a-4c65-a5c8-e0b03b015b36', 800, 3, NOW() + interval '12 months', NOW()),
+('a122cbfc-0627-4c99-bdb9-f7277e98a8a9', 'af49e5ce-3a5d-42a5-a43b-2ab6d9c9d6e6', 11000, 12, NOW() + interval '12 months', NOW()),
+('af49e5ce-3a5d-42a5-a43b-2ab6d9c9d6e6', 'af49e5ce-3a5d-42a5-a43b-2ab6d9c9d6e6', 15000, 15, NOW() + interval '12 months', NOW()),
+('0f59fc27-49e2-4e1c-a264-2475c45c4909', '2c9d3d50-8f9c-4d23-84fd-1e390a5ce1f1', 26000, 21, NOW() + interval '12 months', NOW()),
+('dbdcd22e-79a6-42dc-b9f1-6a92ae7f350e', '2c9d3d50-8f9c-4d23-84fd-1e390a5ce1f1', 30000, 25, NOW() + interval '12 months', NOW()),
+('4be7c2cb-3485-41f4-b8e6-41f3db041ed5', 'dbdcd22e-79a6-42dc-b9f1-6a92ae7f350e', 52000, 42, NOW() + interval '12 months', NOW()),
+('f2cdabde-65b1-4a4c-b964-4e70e3cd4ed5', 'dbdcd22e-79a6-42dc-b9f1-6a92ae7f350e', 56000, 45, NOW() + interval '12 months', NOW()),
+('e0f06f5f-0f44-4c6f-8c1a-20d778ebd4df', '60bcbb15-8a50-42db-bdb0-071933dd5f79', 80000, 65, NOW() + interval '12 months', NOW()),
+('60bcbb15-8a50-42db-bdb0-071933dd5f79', '60bcbb15-8a50-42db-bdb0-071933dd5f79', 95000, 80, NOW() + interval '12 months', NOW());
