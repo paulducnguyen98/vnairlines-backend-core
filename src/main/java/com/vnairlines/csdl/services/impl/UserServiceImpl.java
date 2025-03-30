@@ -51,4 +51,39 @@ public class UserServiceImpl implements UserService {
             return user;
         });
     }
+
+    @Override
+    public UserDto getUserById(UUID userId) {
+        String sql = """
+                    SELECT
+                        u.user_id, u.first_name, u.last_name, u.email, u.phone_number,
+                        u.is_admin, u.is_loyalty_member, u.created_at,
+                        ulp.current_tier_id, mt.tier_name
+                    FROM users u
+                    LEFT JOIN user_loyalty_profiles ulp ON u.user_id = ulp.user_id
+                    LEFT JOIN membership_tiers mt ON ulp.current_tier_id = mt.tier_id
+                    WHERE u.user_id = ?
+                """;
+
+        List<UserDto> result = jdbcTemplate.query(sql, (rs, rowNum) -> {
+            UserDto user = new UserDto();
+            user.setUserId(UUID.fromString(rs.getString("user_id")));
+            user.setFirstName(rs.getString("first_name"));
+            user.setLastName(rs.getString("last_name"));
+            user.setEmail(rs.getString("email"));
+            user.setPhoneNumber(rs.getString("phone_number"));
+            user.setAdmin(rs.getBoolean("is_admin"));
+            user.setLoyaltyMember(rs.getBoolean("is_loyalty_member"));
+            user.setCreatedAt(rs.getTimestamp("created_at"));
+
+            String tierId = rs.getString("current_tier_id");
+            if (tierId != null) {
+                user.setTierName(rs.getString("tier_name"));
+            }
+
+            return user;
+        }, userId);
+
+        return result.isEmpty() ? null : result.get(0);
+    }
 }
