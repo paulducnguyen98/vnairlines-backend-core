@@ -2,6 +2,7 @@ package com.vnairlines.csdl.dtos;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class BookingRequest {
@@ -12,7 +13,7 @@ public class BookingRequest {
     private String contactEmail;
     private String contactPhone;
     private BigDecimal totalPrice;
-    private String ticketClass; // "ECONOMY", "BUSINESS", "FIRST"
+    private Map<UUID, String> ticketClasses;
 
     public BookingRequest() {
         // TODO Auto-generated constructor stub
@@ -20,7 +21,7 @@ public class BookingRequest {
 
     public BookingRequest(UUID userId, List<UUID> flightIds, String contactFirstName, String contactLastName,
             String contactEmail, String contactPhone, BigDecimal totalPrice, List<PassengerRequest> passengers,
-            String ticketClass) {
+            Map<UUID, String> ticketClasses) {
         super();
         this.userId = userId;
         this.flightIds = flightIds;
@@ -30,7 +31,7 @@ public class BookingRequest {
         this.contactPhone = contactPhone;
         this.totalPrice = totalPrice;
         this.passengers = passengers;
-        this.ticketClass = ticketClass;
+        this.ticketClasses = ticketClasses;
     }
 
     private List<PassengerRequest> passengers;
@@ -99,11 +100,11 @@ public class BookingRequest {
         this.passengers = passengers;
     }
 
-    public String getTicketClass() {
-        return ticketClass;
+    public Map<UUID, String> getTicketClasses() {
+        return ticketClasses;
     }
 
-    public void setTicketClass(String ticketClass) {
-        this.ticketClass = ticketClass;
+    public void setTicketClasses(Map<UUID, String> ticketClasses) {
+        this.ticketClasses = ticketClasses;
     }
 }

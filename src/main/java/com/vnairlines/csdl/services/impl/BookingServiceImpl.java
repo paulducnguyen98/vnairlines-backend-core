@@ -41,9 +41,14 @@ public class BookingServiceImpl implements BookingService {
         for (UUID flightId : request.getFlightIds()) {
                 flightService.getFlightById(flightId);
 
+                String ticketClass = request.getTicketClasses().get(flightId);
+                if (ticketClass == null || ticketClass.isBlank()) {
+                    throw new IllegalArgumentException("Ticket class not specified for flight " + flightId);
+                }
+
                 Booking booking = new Booking();
                 booking.setBookingId(UUID.randomUUID());
-                booking.setTripReferenceId(UUID.randomUUID());
+                booking.setTripReferenceId(tripReference);
                 booking.setUserId(null);
                 booking.setBookingCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
                 booking.setContactFirstName(request.getContactFirstName());
@@ -88,6 +93,7 @@ public class BookingServiceImpl implements BookingService {
                     passenger.setPhoneNumber(p.getPhoneNumber());
                     passenger.setBirthDate(p.getBirthDate());
                     passenger.setPassportNumber(p.getPassportNumber());
+                    passenger.setCitizenId(p.getCitizenId());
                     passenger.setMainContact(p.isMainContact());
                     passenger.setCreatedAt(LocalDateTime.now());
                     return passenger;
@@ -96,9 +102,9 @@ public class BookingServiceImpl implements BookingService {
                 String passengerSql = """
                     INSERT INTO passengers (
                         passenger_id, booking_id, first_name, last_name,
-                        email, phone_number, birth_date, passport_number,
+                        email, phone_number, birth_date, passport_number, citizen_id,
                         is_main_contact, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
                 jdbcTemplate.batchUpdate(passengerSql,
@@ -113,8 +119,9 @@ public class BookingServiceImpl implements BookingService {
                         ps.setString(6, passenger.getPhoneNumber());
                         ps.setObject(7, passenger.getBirthDate());
                         ps.setString(8, passenger.getPassportNumber());
-                        ps.setBoolean(9, passenger.isMainContact());
-                        ps.setObject(10, passenger.getCreatedAt());
+                        ps.setString(9, passenger.getCitizenId());
+                        ps.setBoolean(10, passenger.isMainContact());
+                        ps.setObject(11, passenger.getCreatedAt());
                     }
                 );
 
@@ -129,20 +136,20 @@ public class BookingServiceImpl implements BookingService {
                         UUID ticketId = UUID.randomUUID();
                         String ticketNumber = "TK" + ticketId.toString().replace("-", "").substring(0, 8).toUpperCase();
 
-                        BigDecimal price = getFareForFlightAndClass(flightId, request.getTicketClass());
+                        BigDecimal price = getFareForFlightAndClass(flightId, ticketClass);
 
                         jdbcTemplate.update(ticketSql,
                             ticketId,
                             passenger.getPassengerId(),
                             flightId,
                             ticketNumber,
-                            request.getTicketClass(),
+                            ticketClass,
                             price,
                             LocalDateTime.now()
                         );
                     }
 
-                    responses.add(BookingResponse.fromEntity(booking, passengers, request.getTicketClass()));
+                    responses.add(BookingResponse.fromEntity(booking, passengers, ticketClass));
             }
 
         return responses;

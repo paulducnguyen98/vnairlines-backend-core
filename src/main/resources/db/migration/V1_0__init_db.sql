@@ -148,6 +148,7 @@ CREATE TABLE passengers (
     phone_number VARCHAR(20) NULL,
     birth_date DATE NULL,
     passport_number VARCHAR(20) NULL,
+    citizen_id VARCHAR(20) NULL,
     is_main_contact BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT NOW()
 );

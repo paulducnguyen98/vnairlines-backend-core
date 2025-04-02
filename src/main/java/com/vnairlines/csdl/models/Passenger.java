@@ -14,6 +14,7 @@ public class Passenger {
     private String phoneNumber;
     private LocalDate birthDate;
     private String passportNumber;
+    private String citizenId;
     private boolean isMainContact;
     private LocalDateTime createdAt;
 
@@ -22,7 +23,7 @@ public class Passenger {
     }
 
     public Passenger(UUID passengerId, UUID bookingId, String firstName, String lastName, String email,
-            String phoneNumber, LocalDate birthDate, String passportNumber, boolean isMainContact,
+            String phoneNumber, LocalDate birthDate, String passportNumber, String citizenId, boolean isMainContact,
             LocalDateTime createdAt) {
         super();
         this.passengerId = passengerId;
@@ -33,6 +34,7 @@ public class Passenger {
         this.phoneNumber = phoneNumber;
         this.birthDate = birthDate;
         this.passportNumber = passportNumber;
+        this.citizenId = citizenId;
         this.isMainContact = isMainContact;
         this.createdAt = createdAt;
     }
@@ -117,4 +119,11 @@ public class Passenger {
         this.createdAt = createdAt;
     }
 
+    public String getCitizenId() {
+        return citizenId;
+    }
+
+    public void setCitizenId(String citizenId) {
+        this.citizenId = citizenId;
+    }
 }
