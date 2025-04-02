@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.vnairlines.csdl.dtos.PaymentRequest;
 import com.vnairlines.csdl.dtos.PaymentResponse;
+import com.vnairlines.csdl.enums.PaymentStatus;
 import com.vnairlines.csdl.services.PaymentService;
 
 @Service
@@ -50,6 +51,7 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     public void createPayment(PaymentRequest paymentDTO) {
 
+        PaymentStatus status = PaymentStatus.COMPLETED;
         UUID paymentId = UUID.randomUUID();
         String transactionId = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
@@ -75,9 +77,9 @@ public class PaymentServiceImpl implements PaymentService {
             }
 
             jdbcTemplate.update(sql, paymentId, paymentDTO.getTripReferenceId(), paymentDTO.getAmount(),
-                    paymentDTO.getPaymentMethod(), paymentDTO.getStatus(), transactionId, LocalDateTime.now());
+                    paymentDTO.getPaymentMethod(), status.name(), transactionId, LocalDateTime.now());
 
-            if ("COMPLETED".equalsIgnoreCase(paymentDTO.getStatus())) {
+            if ("COMPLETED".equalsIgnoreCase(status.name())) {
                 jdbcTemplate.update("""
                             UPDATE bookings SET status = 'COMPLETED'
                             WHERE trip_reference_id = ?
@@ -105,9 +107,9 @@ public class PaymentServiceImpl implements PaymentService {
                     """;
 
             jdbcTemplate.update(sql, paymentId, paymentDTO.getTripReferenceId(), paymentDTO.getAmount(),
-                    paymentDTO.getPaymentMethod(), paymentDTO.getStatus(), transactionId, now);
+                    paymentDTO.getPaymentMethod(), status.name(), transactionId, now);
 
-            if ("COMPLETED".equalsIgnoreCase(paymentDTO.getStatus())) {
+            if ("COMPLETED".equalsIgnoreCase(status.name())) {
                 jdbcTemplate.update("""
                             UPDATE bookings SET status = 'COMPLETED'
                             WHERE trip_reference_id = ?
