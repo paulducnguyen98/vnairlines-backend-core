@@ -88,6 +88,7 @@ public class BookingServiceImpl implements BookingService {
                     passenger.setPhoneNumber(p.getPhoneNumber());
                     passenger.setBirthDate(p.getBirthDate());
                     passenger.setPassportNumber(p.getPassportNumber());
+                    passenger.setCitizenId(p.getCitizenId());
                     passenger.setMainContact(p.isMainContact());
                     passenger.setCreatedAt(LocalDateTime.now());
                     return passenger;
@@ -96,9 +97,9 @@ public class BookingServiceImpl implements BookingService {
                 String passengerSql = """
                     INSERT INTO passengers (
                         passenger_id, booking_id, first_name, last_name,
-                        email, phone_number, birth_date, passport_number,
+                        email, phone_number, birth_date, passport_number, citizen_id,
                         is_main_contact, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
                 jdbcTemplate.batchUpdate(passengerSql,
@@ -113,8 +114,9 @@ public class BookingServiceImpl implements BookingService {
                         ps.setString(6, passenger.getPhoneNumber());
                         ps.setObject(7, passenger.getBirthDate());
                         ps.setString(8, passenger.getPassportNumber());
-                        ps.setBoolean(9, passenger.isMainContact());
-                        ps.setObject(10, passenger.getCreatedAt());
+                        ps.setString(9, passenger.getCitizenId());
+                        ps.setBoolean(10, passenger.isMainContact());
+                        ps.setObject(11, passenger.getCreatedAt());
                     }
                 );
 

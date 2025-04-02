@@ -91,7 +91,7 @@ public class BookingResponse {
     public static BookingResponse fromEntity(Booking booking, List<Passenger> passengers, String ticketClass) {
         List<PassengerResponse> passengerResponses = passengers.stream()
                 .map(p -> new PassengerResponse(p.getPassengerId(), p.getFirstName(), p.getLastName(), p.getEmail(), 
-                        p.getPhoneNumber(), p.getBirthDate(), p.getPassportNumber(), p.isMainContact(), p.getCreatedAt()))
+                        p.getPhoneNumber(), p.getBirthDate(), p.getPassportNumber(), p.getCitizenId(), p.isMainContact(), p.getCreatedAt()))
                 .collect(Collectors.toList());
         return new BookingResponse(booking.getBookingId(), booking.getTripReferenceId(), booking.getBookingCode(), booking.getStatus(),
                 passengerResponses, ticketClass);

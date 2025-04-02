@@ -9,6 +9,7 @@ public class PassengerRequest {
     private String phoneNumber;
     private LocalDate birthDate;
     private String passportNumber;
+    private String citizenId;
     private boolean isMainContact;
 
     public PassengerRequest() {
@@ -16,7 +17,7 @@ public class PassengerRequest {
     }
 
     public PassengerRequest(String firstName, String lastName, String email, String phoneNumber, LocalDate birthDate,
-            String passportNumber, boolean isMainContact) {
+            String passportNumber, String citizenId, boolean isMainContact) {
         super();
         this.firstName = firstName;
         this.lastName = lastName;
@@ -24,6 +25,7 @@ public class PassengerRequest {
         this.phoneNumber = phoneNumber;
         this.birthDate = birthDate;
         this.passportNumber = passportNumber;
+        this.citizenId = citizenId;
         this.isMainContact = isMainContact;
     }
 
@@ -83,4 +85,11 @@ public class PassengerRequest {
         this.isMainContact = isMainContact;
     }
 
+    public String getCitizenId() {
+        return citizenId;
+    }
+
+    public void setCitizenId(String citizenId) {
+        this.citizenId = citizenId;
+    }
 }
