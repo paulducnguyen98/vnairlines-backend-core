@@ -41,9 +41,14 @@ public class BookingServiceImpl implements BookingService {
         for (UUID flightId : request.getFlightIds()) {
                 flightService.getFlightById(flightId);
 
+                String ticketClass = request.getTicketClasses().get(flightId);
+                if (ticketClass == null || ticketClass.isBlank()) {
+                    throw new IllegalArgumentException("Ticket class not specified for flight " + flightId);
+                }
+
                 Booking booking = new Booking();
                 booking.setBookingId(UUID.randomUUID());
-                booking.setTripReferenceId(UUID.randomUUID());
+                booking.setTripReferenceId(tripReference);
                 booking.setUserId(null);
                 booking.setBookingCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
                 booking.setContactFirstName(request.getContactFirstName());
@@ -131,20 +136,20 @@ public class BookingServiceImpl implements BookingService {
                         UUID ticketId = UUID.randomUUID();
                         String ticketNumber = "TK" + ticketId.toString().replace("-", "").substring(0, 8).toUpperCase();
 
-                        BigDecimal price = getFareForFlightAndClass(flightId, request.getTicketClass());
+                        BigDecimal price = getFareForFlightAndClass(flightId, ticketClass);
 
                         jdbcTemplate.update(ticketSql,
                             ticketId,
                             passenger.getPassengerId(),
                             flightId,
                             ticketNumber,
-                            request.getTicketClass(),
+                            ticketClass,
                             price,
                             LocalDateTime.now()
                         );
                     }
 
-                    responses.add(BookingResponse.fromEntity(booking, passengers, request.getTicketClass()));
+                    responses.add(BookingResponse.fromEntity(booking, passengers, ticketClass));
             }
 
         return responses;
