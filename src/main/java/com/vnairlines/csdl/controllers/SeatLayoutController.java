@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vnairlines.csdl.dtos.SeatAssignmentRequest;
 import com.vnairlines.csdl.models.SeatLayout;
+import com.vnairlines.csdl.services.BookingService;
 import com.vnairlines.csdl.services.SeatLayoutService;
 
 @RestController
@@ -21,9 +23,11 @@ import com.vnairlines.csdl.services.SeatLayoutService;
 public class SeatLayoutController {
 
     private final SeatLayoutService seatLayoutService;
+    private final BookingService bookingService;
 
-    public SeatLayoutController(SeatLayoutService seatLayoutService) {
+    public SeatLayoutController(SeatLayoutService seatLayoutService, BookingService bookingService) {
         this.seatLayoutService = seatLayoutService;
+        this.bookingService  = bookingService;
     }
 
     @GetMapping
@@ -57,5 +61,11 @@ public class SeatLayoutController {
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         seatLayoutService.deleteLayout(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/seats/assign")
+    public ResponseEntity<?> assignSeats(@RequestBody SeatAssignmentRequest request) {
+        bookingService.assignSeatsToPassengers(request);
+        return ResponseEntity.ok("Seats assigned and tickets created successfully.");
     }
 }

@@ -8,6 +8,7 @@ public class TicketDto {
     private UUID ticketId;
     private UUID passengerId;
     private UUID flightId;
+    private UUID seatId;
     private String ticketNumber;
     private String ticketClass; // ECONOMY, BUSINESS, FIRST
     private BigDecimal price;
@@ -76,5 +77,13 @@ public class TicketDto {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public UUID getSeatId() {
+        return seatId;
+    }
+
+    public void setSeatId(UUID seatId) {
+        this.seatId = seatId;
     }
 }
