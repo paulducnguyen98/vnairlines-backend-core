@@ -63,9 +63,9 @@ public class SeatLayoutController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/seats/assign")
-    public ResponseEntity<?> assignSeats(@RequestBody SeatAssignmentRequest request) {
-        bookingService.assignSeatsToPassengers(request);
-        return ResponseEntity.ok("Seats assigned and tickets created successfully.");
-    }
+//    @PostMapping("/seats/assign")
+//    public ResponseEntity<?> assignSeats(@RequestBody SeatAssignmentRequest request) {
+//        bookingService.assignSeatsToPassengers(request);
+//        return ResponseEntity.ok("Seats assigned and tickets created successfully.");
+//    }
 }
