@@ -9,18 +9,16 @@ public class PaymentRequest {
     private UUID bookingId;
     private BigDecimal amount;
     private String paymentMethod; // e.g. VNPAY, PAYPAL
-    private String status;
 
     public PaymentRequest() {
         // TODO Auto-generated constructor stub
     }
 
-    public PaymentRequest(UUID tripReferenceId, UUID bookingId, BigDecimal amount, String paymentMethod, String status) {
+    public PaymentRequest(UUID tripReferenceId, UUID bookingId, BigDecimal amount, String paymentMethod) {
         super();
         this.tripReferenceId = tripReferenceId;
         this.amount = amount;
         this.paymentMethod = paymentMethod;
-        this.status = status;
     }
 
     public UUID getTripReferenceId() {
@@ -45,14 +43,6 @@ public class PaymentRequest {
 
     public void setPaymentMethod(String paymentMethod) {
         this.paymentMethod = paymentMethod;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
     }
 
     public void setBookingId(UUID bookingId) {
