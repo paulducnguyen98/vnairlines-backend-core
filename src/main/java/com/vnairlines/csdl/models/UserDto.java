@@ -1,5 +1,6 @@
 package com.vnairlines.csdl.models;
 
+import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.UUID;
 
@@ -10,27 +11,36 @@ public class UserDto {
     private String lastName;
     private String email;
     private String phoneNumber;
-    private boolean isAdmin;
-    private boolean isLoyaltyMember;
     private Timestamp createdAt;
     private String tierId;
     private String tierName;
+    private String address;
+    private String gender;
+    private String identityNumber;
+    private Date identityIssuedDate;
+    private String identityIssuedPlace;
 
     public UserDto() {
         super();
     }
 
-    public UserDto(UUID userId, String firstName, String lastName, String email, String phoneNumber, boolean isAdmin,
-            boolean isLoyaltyMember, Timestamp createdAt) {
+    public UserDto(UUID userId, String firstName, String lastName, String email, String phoneNumber,
+            Timestamp createdAt, String tierId, String tierName, String address, String gender, String identityNumber,
+            Date identityIssuedDate, String identityIssuedPlace) {
         super();
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phoneNumber = phoneNumber;
-        this.isAdmin = isAdmin;
-        this.isLoyaltyMember = isLoyaltyMember;
         this.createdAt = createdAt;
+        this.tierId = tierId;
+        this.tierName = tierName;
+        this.address = address;
+        this.gender = gender;
+        this.identityNumber = identityNumber;
+        this.identityIssuedDate = identityIssuedDate;
+        this.identityIssuedPlace = identityIssuedPlace;
     }
 
     public UUID getUserId() {
@@ -65,22 +75,6 @@ public class UserDto {
         this.phoneNumber = phoneNumber;
     }
 
-    public boolean isAdmin() {
-        return isAdmin;
-    }
-
-    public void setAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
-    }
-
-    public boolean isLoyaltyMember() {
-        return isLoyaltyMember;
-    }
-
-    public void setLoyaltyMember(boolean isLoyaltyMember) {
-        this.isLoyaltyMember = isLoyaltyMember;
-    }
-
     public Timestamp getCreatedAt() {
         return createdAt;
     }
@@ -112,4 +106,47 @@ public class UserDto {
     public void setTierId(String tierId) {
         this.tierId = tierId;
     }
+
+    // Thêm getter/setter tương ứng
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getIdentityNumber() {
+        return identityNumber;
+    }
+
+    public void setIdentityNumber(String identityNumber) {
+        this.identityNumber = identityNumber;
+    }
+
+    public Date getIdentityIssuedDate() {
+        return identityIssuedDate;
+    }
+
+    public void setIdentityIssuedDate(Date identityIssuedDate) {
+        this.identityIssuedDate = identityIssuedDate;
+    }
+
+    public String getIdentityIssuedPlace() {
+        return identityIssuedPlace;
+    }
+
+    public void setIdentityIssuedPlace(String identityIssuedPlace) {
+        this.identityIssuedPlace = identityIssuedPlace;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
 }

@@ -83,19 +83,53 @@ VALUES
     ('60bcbb15-8a50-42db-bdb0-071933dd5f79', 'Platinum', 5, 75000, 60,  'Unlimited lounge access, VIP hotline');
 
 
-INSERT INTO users (user_id, first_name, last_name, email, phone_number, password_hash, is_admin, is_loyalty_member, created_at)
+--INSERT INTO users (user_id, first_name, last_name, email, phone_number, password_hash, is_admin, is_loyalty_member, created_at)
+--VALUES
+--('2c9d3d50-8f9c-4d23-84fd-1e390a5ce1f1', 'Nguyen','Van A', 'a@example.com', '0900000001', 'hashed_pw_1', false, true, NOW()),
+--('b85f04f9-538a-4c65-a5c8-e0b03b015b36', 'Tran', 'Thi B',  'b@example.com', '0900000002', 'hashed_pw_2', false, true, NOW()),
+--('a122cbfc-0627-4c99-bdb9-f7277e98a8a9', 'Le', 'Van C',    'c@example.com', '0900000003', 'hashed_pw_3', false, true, NOW()),
+--('af49e5ce-3a5d-42a5-a43b-2ab6d9c9d6e6', 'Pham', 'Thi D',  'd@example.com', '0900000004', 'hashed_pw_4', false, true, NOW()),
+--('0f59fc27-49e2-4e1c-a264-2475c45c4909', 'Hoang', 'Van E', 'e@example.com', '0900000005', 'hashed_pw_5', false, true, NOW()),
+--('dbdcd22e-79a6-42dc-b9f1-6a92ae7f350e', 'Do', 'Thi F',    'f@example.com', '0900000006', 'hashed_pw_6', false, true, NOW()),
+--('4be7c2cb-3485-41f4-b8e6-41f3db041ed5', 'Nguyen', 'Van G','g@example.com', '0900000007', 'hashed_pw_7', false, true, NOW()),
+--('f2cdabde-65b1-4a4c-b964-4e70e3cd4ed5', 'Pham', 'Thi H',  'h@example.com', '0900000008', 'hashed_pw_8', false, true, NOW()),
+--('e0f06f5f-0f44-4c6f-8c1a-20d778ebd4df', 'Tran', 'Van I',  'i@example.com', '0900000009', 'hashed_pw_9', false, true, NOW()),
+--('60bcbb15-8a50-42db-bdb0-071933dd5f79', 'Le', 'Thi J',    'j@example.com', '0900000010', 'hashed_pw_10', false, true, NOW());
+INSERT INTO users (
+    user_id, first_name, last_name, email, phone_number,
+    gender, address, identity_number, identity_issued_date,
+    identity_issued_place, created_at
+)
 VALUES
-('2c9d3d50-8f9c-4d23-84fd-1e390a5ce1f1', 'Nguyen','Van A', 'a@example.com', '0900000001', 'hashed_pw_1', false, true, NOW()),
-('b85f04f9-538a-4c65-a5c8-e0b03b015b36', 'Tran', 'Thi B',  'b@example.com', '0900000002', 'hashed_pw_2', false, true, NOW()),
-('a122cbfc-0627-4c99-bdb9-f7277e98a8a9', 'Le', 'Van C',    'c@example.com', '0900000003', 'hashed_pw_3', false, true, NOW()),
-('af49e5ce-3a5d-42a5-a43b-2ab6d9c9d6e6', 'Pham', 'Thi D',  'd@example.com', '0900000004', 'hashed_pw_4', false, true, NOW()),
-('0f59fc27-49e2-4e1c-a264-2475c45c4909', 'Hoang', 'Van E', 'e@example.com', '0900000005', 'hashed_pw_5', false, true, NOW()),
-('dbdcd22e-79a6-42dc-b9f1-6a92ae7f350e', 'Do', 'Thi F',    'f@example.com', '0900000006', 'hashed_pw_6', false, true, NOW()),
-('4be7c2cb-3485-41f4-b8e6-41f3db041ed5', 'Nguyen', 'Van G','g@example.com', '0900000007', 'hashed_pw_7', false, true, NOW()),
-('f2cdabde-65b1-4a4c-b964-4e70e3cd4ed5', 'Pham', 'Thi H',  'h@example.com', '0900000008', 'hashed_pw_8', false, true, NOW()),
-('e0f06f5f-0f44-4c6f-8c1a-20d778ebd4df', 'Tran', 'Van I',  'i@example.com', '0900000009', 'hashed_pw_9', false, true, NOW()),
-('60bcbb15-8a50-42db-bdb0-071933dd5f79', 'Le', 'Thi J',    'j@example.com', '0900000010', 'hashed_pw_10', false, true, NOW());
+('2c9d3d50-8f9c-4d23-84fd-1e390a5ce1f1', 'Nguyen', 'Van A', 'a@example.com', '0900000001',
+ 'MALE', '123 Đường A, Hà Nội', '070098000001', '2020-01-01', 'Hà Nội', NOW()),
 
+('b85f04f9-538a-4c65-a5c8-e0b03b015b36', 'Tran', 'Thi B', 'b@example.com', '0900000002',
+ 'FEMALE', '456 Đường B, HCM', '070098000002', '2020-01-02', 'TP HCM', NOW()),
+
+('a122cbfc-0627-4c99-bdb9-f7277e98a8a9', 'Le', 'Van C', 'c@example.com', '0900000003',
+ 'MALE', '789 Đường C, Đà Nẵng', '070098000003', '2020-01-03', 'Đà Nẵng', NOW()),
+
+('af49e5ce-3a5d-42a5-a43b-2ab6d9c9d6e6', 'Pham', 'Thi D', 'd@example.com', '0900000004',
+ 'FEMALE', '123 Đường D, Cần Thơ', '070098000004', '2020-01-04', 'Cần Thơ', NOW()),
+
+('0f59fc27-49e2-4e1c-a264-2475c45c4909', 'Hoang', 'Van E', 'e@example.com', '0900000005',
+ 'MALE', '234 Đường E, Hải Phòng', '070098000005', '2020-01-05', 'Hải Phòng', NOW()),
+
+('dbdcd22e-79a6-42dc-b9f1-6a92ae7f350e', 'Do', 'Thi F', 'f@example.com', '0900000006',
+ 'FEMALE', '345 Đường F, Nha Trang', '070098000006', '2020-01-06', 'Nha Trang', NOW()),
+
+('4be7c2cb-3485-41f4-b8e6-41f3db041ed5', 'Nguyen', 'Van G', 'g@example.com', '0900000007',
+ 'MALE', '456 Đường G, Huế', '070098000007', '2020-01-07', 'Huế', NOW()),
+
+('f2cdabde-65b1-4a4c-b964-4e70e3cd4ed5', 'Pham', 'Thi H', 'h@example.com', '0900000008',
+ 'FEMALE', '567 Đường H, Quảng Ninh', '070098000008', '2020-01-08', 'Quảng Ninh', NOW()),
+
+('e0f06f5f-0f44-4c6f-8c1a-20d778ebd4df', 'Tran', 'Van I', 'i@example.com', '0900000009',
+ 'MALE', '678 Đường I, Lâm Đồng', '070098000009', '2020-01-09', 'Lâm Đồng', NOW()),
+
+('60bcbb15-8a50-42db-bdb0-071933dd5f79', 'Le', 'Thi J', 'j@example.com', '0900000010',
+ 'FEMALE', '789 Đường J, Bình Định', '070098000010', '2020-01-10', 'Bình Định', NOW());
 
 -- Ví dụ minh hoạ với user_id giả định (bạn cần thay bằng ID thực tế đã insert)
 INSERT INTO user_loyalty_profiles (user_id, current_tier_id, total_miles, total_flights, miles_expiry_date, tier_achieved_at)
