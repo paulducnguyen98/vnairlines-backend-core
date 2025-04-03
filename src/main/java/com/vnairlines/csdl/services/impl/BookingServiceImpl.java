@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.vnairlines.csdl.dtos.BookingRequest;
 import com.vnairlines.csdl.dtos.BookingResponse;
 import com.vnairlines.csdl.dtos.PassengerResponse;
+import com.vnairlines.csdl.dtos.PaymentRequest;
 import com.vnairlines.csdl.dtos.PaymentResponse;
 import com.vnairlines.csdl.dtos.SeatAssignment;
 import com.vnairlines.csdl.dtos.SeatAssignmentRequest;
@@ -22,17 +24,20 @@ import com.vnairlines.csdl.models.Booking;
 import com.vnairlines.csdl.models.Passenger;
 import com.vnairlines.csdl.services.BookingService;
 import com.vnairlines.csdl.services.FlightService;
+import com.vnairlines.csdl.services.MailService;
 
 @Service
 public class BookingServiceImpl implements BookingService {
 
     private final JdbcTemplate jdbcTemplate;
-    private final FlightService flightService;;
+    private final FlightService flightService;
+    private final MailService mailService;
 
-    public BookingServiceImpl(JdbcTemplate jdbcTemplate, FlightService flightService) {
+    public BookingServiceImpl(JdbcTemplate jdbcTemplate, FlightService flightService, MailService mailService) {
         super();
         this.jdbcTemplate = jdbcTemplate;
         this.flightService = flightService;
+        this.mailService = mailService;
     }
 
     @Override
@@ -154,7 +159,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponse getBookingDetails(UUID bookingId) {
         String bookingSql = """
-                    SELECT booking_id, trip_reference_id, booking_code, status
+                    SELECT booking_id, trip_reference_id, booking_code, status, contact_first_name, contact_last_name, contact_email, contact_phone 
                     FROM bookings
                     WHERE booking_id = ?
                 """;
@@ -165,6 +170,10 @@ public class BookingServiceImpl implements BookingService {
             dto.setTripReferenceId((UUID) rs.getObject("trip_reference_id"));
             dto.setBookingCode(rs.getString("booking_code"));
             dto.setStatus(rs.getString("status"));
+            dto.setContactFirstName(rs.getString("contact_first_name"));
+            dto.setContactLastName(rs.getString("contact_last_name"));
+            dto.setContactEmail(rs.getString("contact_email"));
+            dto.setContactPhone(rs.getString("contact_phone"));
             return dto;
         }, bookingId);
         String flightSql = """
@@ -301,6 +310,63 @@ public class BookingServiceImpl implements BookingService {
                         SET seat_id = ?, status = 'CHECKED-IN'
                         WHERE passenger_id = ? AND flight_id = ?
                     """, seatId, passengerId, flightId);
+        }
+    }
+
+    @Transactional
+    @Override
+    public BookingResponse findBookingByCodeAndEmail(String bookingCode, String email) {
+        String sql = """
+                SELECT booking_id
+                FROM bookings
+                WHERE booking_code = ? AND LOWER(contact_email) = LOWER(?)
+            """;
+
+            List<UUID> ids = jdbcTemplate.query(sql, (rs, rowNum) -> UUID.fromString(rs.getString("booking_id")),
+                    bookingCode, email);
+
+            if (ids.isEmpty()) {
+                return null;
+            }
+            return getBookingDetails(ids.get(0));
+    }
+
+    @Override
+    public void sendConfirmationEmailsFromPaymentRequest(PaymentRequest request) {
+        if (request.getTripReferenceId() != null) {
+            // Send for all bookings under the trip
+            List<Map<String, Object>> bookings = jdbcTemplate.queryForList("""
+                SELECT booking_code, contact_email
+                FROM bookings
+                WHERE trip_reference_id = ?
+            """, request.getTripReferenceId());
+
+            for (Map<String, Object> row : bookings) {
+                String email = (String) row.get("contact_email");
+                String code = (String) row.get("booking_code");
+
+                if (email != null) {
+                    mailService.sendBookingConfirmation(email, code);
+                }
+            }
+
+        } else if (request.getBookingId() != null) {
+            // Send for one booking
+            Map<String, Object> result = jdbcTemplate.queryForMap("""
+                SELECT booking_code, contact_email
+                FROM bookings
+                WHERE booking_id = ?
+            """, request.getBookingId());
+
+            String email = (String) result.get("contact_email");
+            String code = (String) result.get("booking_code");
+
+            if (email != null) {
+                mailService.sendBookingConfirmation(email, code);
+            }
+
+        } else {
+            throw new IllegalArgumentException("Either bookingId or tripReferenceId must be provided");
         }
     }
 

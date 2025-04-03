@@ -37,3 +37,8 @@ Base URL: http://localhost:8080
 Health check: GET /actuator/health
 
 Example: GET /api/flights
+
+# https://mailtrap.io/
+https://mailtrap.io/signin
+Email: lyly9x101@gmail.com
+Password: BQd6JNT2!rX3f4J
