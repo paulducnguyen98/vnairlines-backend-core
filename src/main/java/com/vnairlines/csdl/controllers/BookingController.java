@@ -1,5 +1,6 @@
 package com.vnairlines.csdl.controllers;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import com.vnairlines.csdl.dtos.BookingRequest;
 import com.vnairlines.csdl.dtos.BookingResponse;
 import com.vnairlines.csdl.dtos.PaymentRequest;
 import com.vnairlines.csdl.dtos.TicketDto;
+import com.vnairlines.csdl.dtos.TripBookingResponse;
 import com.vnairlines.csdl.services.BookingService;
 import com.vnairlines.csdl.services.PaymentService;
 import com.vnairlines.csdl.services.TicketService;
@@ -49,11 +51,17 @@ public class BookingController {
     }
 
     @PostMapping
-    public ResponseEntity<List<BookingResponse>> createBooking(@RequestBody BookingRequest request) {
+    public ResponseEntity<TripBookingResponse> createBooking(@RequestBody BookingRequest request) {
         List<BookingResponse> response = bookingService.createRoundTripBooking(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
 
+        BigDecimal totalPrice = response.stream()
+                .map(b -> b.getPrice() != null ? b.getPrice() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        TripBookingResponse tripResponse = new TripBookingResponse(response, totalPrice.doubleValue());
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(tripResponse);
+    }
     @PostMapping("/payment")
     public ResponseEntity<Void> createPayment(@RequestBody PaymentRequest paymentDTO) {
         paymentService.createPayment(paymentDTO);
