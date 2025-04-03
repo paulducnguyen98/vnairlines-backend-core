@@ -28,6 +28,7 @@ public class TicketServiceImpl implements TicketService {
         ticketDTO.setTicketClass(rs.getString("ticket_class"));
         ticketDTO.setPrice(rs.getBigDecimal("price"));
         ticketDTO.setStatus(rs.getString("status"));
+        ticketDTO.setSeatId(UUID.fromString(rs.getString("seat_id")));
         ticketDTO.setCreatedAt(rs.getTimestamp("created_at"));
         return ticketDTO;
     };
@@ -46,13 +47,7 @@ public class TicketServiceImpl implements TicketService {
 
     @Override
     public void createTicket(TicketDto ticketDto) {
-        String sql = """
-            INSERT INTO tickets (ticket_id, booking_id, flight_id, ticket_number, ticket_class, price, status)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-        """;
-        UUID ticketId = UUID.randomUUID();
-//        jdbcTemplate.update(sql, ticketId, ticketDto.getBookingId(), ticketDto.getFlightId(),
-//                ticketDto.getTicketNumber(), ticketDto.getTicketClass(), ticketDto.getPrice(), ticketDto.getStatus());
+        
     }
 
     @Override

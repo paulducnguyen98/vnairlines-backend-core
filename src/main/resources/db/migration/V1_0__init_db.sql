@@ -54,7 +54,6 @@ CREATE TABLE users (
 
 CREATE INDEX idx_users_email ON users(email);
 
-
 CREATE TABLE flights (
     flight_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     airline_id UUID REFERENCES airlines(airline_id),  -- Thay vì lưu tên hãng hàng không
@@ -82,6 +81,8 @@ CREATE TABLE seat_inventory (
     updated_at TIMESTAMP DEFAULT NOW(),
     UNIQUE (flight_id, seat_row, seat_column)
 );
+
+
 
 CREATE OR REPLACE FUNCTION generate_seat_inventory()
 RETURNS TRIGGER AS $$
@@ -164,6 +165,7 @@ CREATE TABLE tickets (
     flight_id UUID REFERENCES flights(flight_id),
     ticket_number VARCHAR(30) UNIQUE NOT NULL,
     ticket_class ticket_class_type NOT NULL,
+    seat_id UUID REFERENCES seat_inventory(seat_id),
     price DECIMAL(10,2) NOT NULL,
     status ticket_status_type NOT NULL,
     created_at TIMESTAMP DEFAULT NOW(),

@@ -9,11 +9,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.vnairlines.csdl.dtos.BookingRequest;
 import com.vnairlines.csdl.dtos.BookingResponse;
 import com.vnairlines.csdl.dtos.PassengerResponse;
 import com.vnairlines.csdl.dtos.PaymentResponse;
+import com.vnairlines.csdl.dtos.SeatAssignment;
+import com.vnairlines.csdl.dtos.SeatAssignmentRequest;
 import com.vnairlines.csdl.models.Booking;
 import com.vnairlines.csdl.models.Passenger;
 import com.vnairlines.csdl.services.BookingService;
@@ -241,7 +244,48 @@ public class BookingServiceImpl implements BookingService {
                 booking.setPayment(payments.get(0));
             }
 
-
         return booking;
     }
+
+    @Transactional
+    public void assignSeatsToPassengers(SeatAssignmentRequest request) {
+        UUID bookingId = request.getBookingId();
+     // 1. Get flightId from bookingId (assuming all passengers in booking are on same flight)
+        UUID flightId = jdbcTemplate.queryForObject("""
+            SELECT t.flight_id
+            FROM tickets t
+            JOIN passengers p ON p.passenger_id = t.passenger_id
+            WHERE p.booking_id = ?
+            LIMIT 1
+        """, UUID.class, bookingId);
+
+        if (flightId == null) {
+            throw new IllegalStateException("Cannot determine flight for booking " + bookingId);
+        }
+
+        // 2. Loop through assignments
+        for (SeatAssignment assignment : request.getAssignments()) {
+            UUID passengerId = assignment.getPassengerId();
+            UUID seatId = assignment.getSeatId();
+
+            // 3. Check seat availability
+            int updated = jdbcTemplate.update("""
+                UPDATE seat_inventory
+                SET status = 'BOOKED', updated_at = NOW()
+                WHERE seat_id = ? AND status = 'AVAILABLE'
+            """, seatId);
+
+            if (updated == 0) {
+                throw new IllegalStateException("Seat already taken: " + seatId);
+            }
+
+            // 4. Update the existing ticket to assign seat_id and (optionally) mark as CHECKED-IN
+            jdbcTemplate.update("""
+                UPDATE tickets
+                SET seat_id = ?, status = 'CHECKED-IN'
+                WHERE passenger_id = ? AND flight_id = ?
+            """, seatId, passengerId, flightId);
+        }
+    }
+
 }
