@@ -131,6 +131,19 @@ VALUES
 ('60bcbb15-8a50-42db-bdb0-071933dd5f79', 'Le', 'Thi J', 'j@example.com', '0900000010',
  'FEMALE', '789 Đường J, Bình Định', '070098000010', '2020-01-10', 'Bình Định', NOW());
 
+-- normal users
+INSERT INTO users (user_id, first_name, last_name, email, created_at)
+VALUES
+('b99f824c-67a4-441e-91db-bd9de0c1a100', '', '', 'kde@example.com', NOW()),
+('c78be712-157f-4c26-b6d9-60b260a68c31', '', '', 'law@example.com', NOW()),
+('f630a93e-b4ad-47e6-b7ef-8e18ed33c591', '', '', 'mgege@example.com', NOW()),
+('a2e6c045-e3e2-4f90-8dd1-2a8d6d5a7fbc', '', '', 'ndede@example.com', NOW()),
+('0140ce2c-21d2-46cb-912f-4b3920f6df3c', '', '', 'ogege@example.com', NOW()),
+('ea13cf65-2eaf-41fd-994c-b2673b4f5fd3', '', '', 'paaea@example.com', NOW()),
+('6c1e8b3e-f531-4a89-88b2-67a64e80e6a7', '', '', 'qeeqw@example.com', NOW()),
+('48b6e10f-7855-4f9a-984e-9c6a30e50332', '', '', 'rdeguu@example.com', NOW()),
+('9bb5361c-fbe6-4aa3-8d34-5a6636efb1f4', '', '', 'swewq@example.com', NOW()),
+('e663fa5e-48ad-4a67-b9ee-e5ff3c5bb717', '', '', 'tttweqeqq@example.com', NOW());
 -- Ví dụ minh hoạ với user_id giả định (bạn cần thay bằng ID thực tế đã insert)
 INSERT INTO user_loyalty_profiles (user_id, current_tier_id, total_miles, total_flights, miles_expiry_date, tier_achieved_at)
 VALUES
