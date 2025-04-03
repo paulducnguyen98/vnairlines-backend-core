@@ -2,6 +2,7 @@ package com.vnairlines.csdl.dtos;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class PassengerResponse {
@@ -16,13 +17,11 @@ public class PassengerResponse {
     private String citizenId;
     private boolean isMainContact;
     private LocalDateTime createdAt;
-
-    public PassengerResponse() {
-        // TODO Auto-generated constructor stub
-    }
+    private List<TicketResponse> tickets;
 
     public PassengerResponse(UUID passengerId, String firstName, String lastName, String email, String phoneNumber,
-            LocalDate birthDate, String passportNumber, String citizenId, boolean isMainContact, LocalDateTime createdAt) {
+            LocalDate birthDate, String passportNumber, String citizenId, boolean isMainContact,
+            LocalDateTime createdAt) {
         super();
         this.passengerId = passengerId;
         this.firstName = firstName;
@@ -31,9 +30,21 @@ public class PassengerResponse {
         this.phoneNumber = phoneNumber;
         this.birthDate = birthDate;
         this.passportNumber = passportNumber;
-        this.citizenId = citizenId; 
+        this.citizenId = citizenId;
         this.isMainContact = isMainContact;
         this.createdAt = createdAt;
+    }
+
+    public List<TicketResponse> getTickets() {
+        return tickets;
+    }
+
+    public void setTickets(List<TicketResponse> tickets) {
+        this.tickets = tickets;
+    }
+
+    public PassengerResponse() {
+        // TODO Auto-generated constructor stub
     }
 
     public UUID getPassengerId() {
