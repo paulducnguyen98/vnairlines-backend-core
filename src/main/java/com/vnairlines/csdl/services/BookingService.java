@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.vnairlines.csdl.dtos.BookingRequest;
 import com.vnairlines.csdl.dtos.BookingResponse;
+import com.vnairlines.csdl.dtos.PaymentRequest;
 import com.vnairlines.csdl.dtos.SeatAssignmentRequest;
 
 public interface BookingService {
@@ -13,4 +14,8 @@ public interface BookingService {
     BookingResponse getBookingDetails(UUID bookingId);
 
     void assignSeatsToPassengers(SeatAssignmentRequest request);
+
+    BookingResponse findBookingByCodeAndEmail(String bookingCode, String email);
+
+    void sendConfirmationEmailsFromPaymentRequest(PaymentRequest request);
 }

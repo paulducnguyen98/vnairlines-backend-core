@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vnairlines.csdl.dtos.BookingRequest;
@@ -20,6 +21,7 @@ import com.vnairlines.csdl.dtos.PaymentRequest;
 import com.vnairlines.csdl.dtos.TicketDto;
 import com.vnairlines.csdl.dtos.TripBookingResponse;
 import com.vnairlines.csdl.services.BookingService;
+import com.vnairlines.csdl.services.MailService;
 import com.vnairlines.csdl.services.PaymentService;
 import com.vnairlines.csdl.services.TicketService;
 
@@ -30,11 +32,13 @@ public class BookingController {
     private final BookingService bookingService;
     private final TicketService ticketService;
     private final PaymentService paymentService;
+    private final MailService mailService;
 
-    public BookingController(BookingService bookingService, TicketService ticketService, PaymentService paymentService) {
+    public BookingController(BookingService bookingService, TicketService ticketService, PaymentService paymentService, MailService mailService) {
         this.bookingService = bookingService;
         this.ticketService = ticketService;
         this.paymentService = paymentService;
+        this.mailService = mailService;
     }
 
 //    // Get booking details with tickets and payments
@@ -65,6 +69,7 @@ public class BookingController {
     @PostMapping("/payment")
     public ResponseEntity<Void> createPayment(@RequestBody PaymentRequest paymentDTO) {
         paymentService.createPayment(paymentDTO);
+        bookingService.sendConfirmationEmailsFromPaymentRequest(paymentDTO);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -73,4 +78,19 @@ public class BookingController {
         ticketService.updateTicket(ticketId, ticketDTO);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/lookup")
+    public ResponseEntity<BookingResponse> findBookingByCodeAndEmail(
+            @RequestParam String bookingCode,
+            @RequestParam String email) {
+
+        BookingResponse booking = bookingService.findBookingByCodeAndEmail(bookingCode, email);
+
+        if (booking == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(booking);
+    }
+
 }

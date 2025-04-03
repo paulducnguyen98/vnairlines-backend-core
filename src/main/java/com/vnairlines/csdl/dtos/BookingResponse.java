@@ -24,6 +24,10 @@ public class BookingResponse {
     private String arrivalAirportCode;
     private LocalDateTime departureTime;
     private LocalDateTime arrivalTime;
+    private String contactFirstName;
+    private String contactLastName;
+    private String contactEmail;
+    private String contactPhone;
 
     public BookingResponse() {
         // TODO Auto-generated constructor stub
@@ -39,6 +43,38 @@ public class BookingResponse {
         this.passengers = passengers;
         this.ticketClass = ticketClass;
         this.price = price;
+    }
+
+    public String getContactFirstName() {
+        return contactFirstName;
+    }
+
+    public void setContactFirstName(String contactFirstName) {
+        this.contactFirstName = contactFirstName;
+    }
+
+    public String getContactLastName() {
+        return contactLastName;
+    }
+
+    public void setContactLastName(String contactLastName) {
+        this.contactLastName = contactLastName;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
+    }
+
+    public void setContactEmail(String contactEmail) {
+        this.contactEmail = contactEmail;
+    }
+
+    public String getContactPhone() {
+        return contactPhone;
+    }
+
+    public void setContactPhone(String contactPhone) {
+        this.contactPhone = contactPhone;
     }
 
     public UUID getBookingId() {
