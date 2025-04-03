@@ -250,10 +250,18 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public void assignSeatsToPassengers(SeatAssignmentRequest request) {
         UUID bookingId = request.getBookingId();
-        UUID flightId = request.getFlightId();
+     // 1. Get flightId from bookingId (assuming all passengers in booking are on same flight)
+        UUID flightId = jdbcTemplate.queryForObject("""
+            SELECT t.flight_id
+            FROM tickets t
+            JOIN passengers p ON p.passenger_id = t.passenger_id
+            WHERE p.booking_id = ?
+            LIMIT 1
+        """, UUID.class, bookingId);
 
-        // 1. Get booking info
-        getBookingDetails(bookingId);
+        if (flightId == null) {
+            throw new IllegalStateException("Cannot determine flight for booking " + bookingId);
+        }
 
         // 2. Loop through assignments
         for (SeatAssignment assignment : request.getAssignments()) {

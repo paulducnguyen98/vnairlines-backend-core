@@ -6,14 +6,12 @@ import java.util.UUID;
 
 public class SeatAssignmentRequest {
     private UUID bookingId;
-    private UUID flightId;
     private List<SeatAssignment> assignments = new ArrayList<SeatAssignment>();
     private String ticketClass;
 
-    public SeatAssignmentRequest(UUID bookingId, UUID flightId, List<SeatAssignment> assignments, String ticketClass) {
+    public SeatAssignmentRequest(UUID bookingId, List<SeatAssignment> assignments, String ticketClass) {
         super();
         this.bookingId = bookingId;
-        this.flightId = flightId;
         this.assignments = assignments;
         this.ticketClass = ticketClass;
     }
@@ -28,14 +26,6 @@ public class SeatAssignmentRequest {
 
     public void setBookingId(UUID bookingId) {
         this.bookingId = bookingId;
-    }
-
-    public UUID getFlightId() {
-        return flightId;
-    }
-
-    public void setFlightId(UUID flightId) {
-        this.flightId = flightId;
     }
 
     public List<SeatAssignment> getAssignments() {
