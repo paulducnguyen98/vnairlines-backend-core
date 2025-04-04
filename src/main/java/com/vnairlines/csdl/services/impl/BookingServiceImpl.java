@@ -303,6 +303,13 @@ public class BookingServiceImpl implements BookingService {
                 throw new IllegalStateException("Seat already taken: " + seatId);
             }
 
+         // Update ticket with seat and set status to CHECKED-IN
+            jdbcTemplate.update("""
+                UPDATE tickets
+                SET seat_id = ?, status = 'CHECKED-IN'
+                WHERE passenger_id = ? AND flight_id = ?
+            """, seatId, passengerId, flightId);
+
             // 4. Update the existing ticket to assign seat_id and (optionally) mark as
             // CHECKED-IN
             jdbcTemplate.update("""
