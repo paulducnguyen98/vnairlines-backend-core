@@ -12,8 +12,10 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.vnairlines.csdl.dtos.AirportSummary;
 import com.vnairlines.csdl.dtos.BookingRequest;
 import com.vnairlines.csdl.dtos.BookingResponse;
+import com.vnairlines.csdl.dtos.FlightSummary;
 import com.vnairlines.csdl.dtos.PassengerResponse;
 import com.vnairlines.csdl.dtos.PaymentRequest;
 import com.vnairlines.csdl.dtos.PaymentResponse;
@@ -159,7 +161,7 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponse getBookingDetails(UUID bookingId) {
         String bookingSql = """
-                    SELECT booking_id, trip_reference_id, booking_code, status, contact_first_name, contact_last_name, contact_email, contact_phone 
+                    SELECT booking_id, trip_reference_id, booking_code, status, contact_first_name, contact_last_name, contact_email, contact_phone
                     FROM bookings
                     WHERE booking_id = ?
                 """;
@@ -177,9 +179,22 @@ public class BookingServiceImpl implements BookingService {
             return dto;
         }, bookingId);
         String flightSql = """
-                    SELECT f.flight_number, da.airport_code AS departure_airport_code,
-                           aa.airport_code AS arrival_airport_code,
-                           f.departure_time, f.arrival_time
+                    SELECT
+                        f.flight_id,
+                        f.flight_number,
+                        f.departure_time,
+                        f.arrival_time,
+
+                        da.airport_code AS dep_code,
+                        da.airport_name AS dep_name,
+                        da.city AS dep_city,
+                        da.country AS dep_country,
+
+                        aa.airport_code AS arr_code,
+                        aa.airport_name AS arr_name,
+                        aa.city AS arr_city,
+                        aa.country AS arr_country
+
                     FROM tickets t
                     JOIN flights f ON t.flight_id = f.flight_id
                     JOIN airports da ON f.departure_airport_id = da.airport_id
@@ -189,13 +204,33 @@ public class BookingServiceImpl implements BookingService {
                     LIMIT 1
                 """;
 
-        jdbcTemplate.query(flightSql, rs -> {
-            booking.setFlightNumber(rs.getString("flight_number"));
-            booking.setDepartureAirportCode(rs.getString("departure_airport_code"));
-            booking.setArrivalAirportCode(rs.getString("arrival_airport_code"));
-            booking.setDepartureTime(rs.getTimestamp("departure_time").toLocalDateTime());
-            booking.setArrivalTime(rs.getTimestamp("arrival_time").toLocalDateTime());
+        FlightSummary flight = jdbcTemplate.queryForObject(flightSql, (rs, rowNum) -> {
+            FlightSummary fs = new FlightSummary();
+            fs.setFlightId(UUID.fromString(rs.getString("flight_id")));
+            fs.setFlightNumber(rs.getString("flight_number"));
+            fs.setDepartureTime(rs.getTimestamp("departure_time").toLocalDateTime());
+            fs.setArrivalTime(rs.getTimestamp("arrival_time").toLocalDateTime());
+
+            // Departure airport object
+            AirportSummary dep = new AirportSummary();
+            dep.setAirportCode(rs.getString("dep_code"));
+            dep.setAirportName(rs.getString("dep_name"));
+            dep.setCity(rs.getString("dep_city"));
+            dep.setCountry(rs.getString("dep_country"));
+            fs.setDepartureAirport(dep);
+
+            // Arrival airport object
+            AirportSummary arr = new AirportSummary();
+            arr.setAirportCode(rs.getString("arr_code"));
+            arr.setAirportName(rs.getString("arr_name"));
+            arr.setCity(rs.getString("arr_city"));
+            arr.setCountry(rs.getString("arr_country"));
+            fs.setArrivalAirport(arr);
+            return fs;
         }, bookingId);
+
+        booking.setFlight(flight);
+
         UUID tripReferenceId = booking.getTripReferenceId();
         String passengerSql = """
                     SELECT passenger_id, first_name, last_name, email, phone_number,
@@ -303,13 +338,6 @@ public class BookingServiceImpl implements BookingService {
                 throw new IllegalStateException("Seat already taken: " + seatId);
             }
 
-         // Update ticket with seat and set status to CHECKED-IN
-            jdbcTemplate.update("""
-                UPDATE tickets
-                SET seat_id = ?, status = 'CHECKED-IN'
-                WHERE passenger_id = ? AND flight_id = ?
-            """, seatId, passengerId, flightId);
-
             // 4. Update the existing ticket to assign seat_id and (optionally) mark as
             // CHECKED-IN
             jdbcTemplate.update("""
@@ -324,18 +352,18 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public BookingResponse findBookingByCodeAndEmail(String bookingCode, String email) {
         String sql = """
-                SELECT booking_id
-                FROM bookings
-                WHERE booking_code = ? AND LOWER(contact_email) = LOWER(?)
-            """;
+                    SELECT booking_id
+                    FROM bookings
+                    WHERE booking_code = ? AND LOWER(contact_email) = LOWER(?)
+                """;
 
-            List<UUID> ids = jdbcTemplate.query(sql, (rs, rowNum) -> UUID.fromString(rs.getString("booking_id")),
-                    bookingCode, email);
+        List<UUID> ids = jdbcTemplate.query(sql, (rs, rowNum) -> UUID.fromString(rs.getString("booking_id")),
+                bookingCode, email);
 
-            if (ids.isEmpty()) {
-                return null;
-            }
-            return getBookingDetails(ids.get(0));
+        if (ids.isEmpty()) {
+            return null;
+        }
+        return getBookingDetails(ids.get(0));
     }
 
     @Override
@@ -343,10 +371,10 @@ public class BookingServiceImpl implements BookingService {
         if (request.getTripReferenceId() != null) {
             // Send for all bookings under the trip
             List<Map<String, Object>> bookings = jdbcTemplate.queryForList("""
-                SELECT booking_code, contact_email
-                FROM bookings
-                WHERE trip_reference_id = ?
-            """, request.getTripReferenceId());
+                        SELECT booking_code, contact_email
+                        FROM bookings
+                        WHERE trip_reference_id = ?
+                    """, request.getTripReferenceId());
 
             for (Map<String, Object> row : bookings) {
                 String email = (String) row.get("contact_email");
@@ -360,10 +388,10 @@ public class BookingServiceImpl implements BookingService {
         } else if (request.getBookingId() != null) {
             // Send for one booking
             Map<String, Object> result = jdbcTemplate.queryForMap("""
-                SELECT booking_code, contact_email
-                FROM bookings
-                WHERE booking_id = ?
-            """, request.getBookingId());
+                        SELECT booking_code, contact_email
+                        FROM bookings
+                        WHERE booking_id = ?
+                    """, request.getBookingId());
 
             String email = (String) result.get("contact_email");
             String code = (String) result.get("booking_code");

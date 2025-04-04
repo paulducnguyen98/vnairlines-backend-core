@@ -19,11 +19,7 @@ public class BookingResponse {
     private PaymentResponse payment;
     private String ticketClass;
     private BigDecimal price;
-    private String flightNumber;
-    private String departureAirportCode;
-    private String arrivalAirportCode;
-    private LocalDateTime departureTime;
-    private LocalDateTime arrivalTime;
+    private FlightSummary flight;
     private String contactFirstName;
     private String contactLastName;
     private String contactEmail;
@@ -141,44 +137,12 @@ public class BookingResponse {
         return price;
     }
 
-    public String getFlightNumber() {
-        return flightNumber;
+    public void setFlight(FlightSummary flight) {
+        this.flight = flight;
     }
 
-    public void setFlightNumber(String flightNumber) {
-        this.flightNumber = flightNumber;
-    }
-
-    public String getDepartureAirportCode() {
-        return departureAirportCode;
-    }
-
-    public void setDepartureAirportCode(String departureAirportCode) {
-        this.departureAirportCode = departureAirportCode;
-    }
-
-    public String getArrivalAirportCode() {
-        return arrivalAirportCode;
-    }
-
-    public void setArrivalAirportCode(String arrivalAirportCode) {
-        this.arrivalAirportCode = arrivalAirportCode;
-    }
-
-    public LocalDateTime getDepartureTime() {
-        return departureTime;
-    }
-
-    public void setDepartureTime(LocalDateTime departureTime) {
-        this.departureTime = departureTime;
-    }
-
-    public LocalDateTime getArrivalTime() {
-        return arrivalTime;
-    }
-
-    public void setArrivalTime(LocalDateTime arrivalTime) {
-        this.arrivalTime = arrivalTime;
+    public FlightSummary getFlight() {
+        return flight;
     }
 
     public static BookingResponse fromEntity(Booking booking, List<Passenger> passengers, String ticketClass) {
