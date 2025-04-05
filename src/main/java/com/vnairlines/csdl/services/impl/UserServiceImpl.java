@@ -6,6 +6,7 @@ import java.util.UUID;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
+import com.vnairlines.csdl.dtos.MembershipTierDto;
 import com.vnairlines.csdl.models.UserDto;
 import com.vnairlines.csdl.services.UserService;
 
@@ -136,4 +137,49 @@ public class UserServiceImpl implements UserService {
         }
         return user;
     }
+
+    @Override
+    public void assignTierToUser(UUID userId, String tierName) {
+        // Get tier_id by tier_name
+        String getTierIdSql = "SELECT tier_id FROM membership_tiers WHERE LOWER(tier_name) = LOWER(?)";
+        UUID tierId = jdbcTemplate.queryForObject(getTierIdSql, UUID.class, tierName);
+
+        if (tierId == null) {
+            throw new IllegalArgumentException("Tier not found: " + tierName);
+        }
+
+        // Check if user already has a loyalty profile
+        String checkSql = "SELECT COUNT(*) FROM user_loyalty_profiles WHERE user_id = ?";
+        int count = jdbcTemplate.queryForObject(checkSql, Integer.class, userId);
+
+        if (count > 0) {
+            String updateSql = "UPDATE user_loyalty_profiles SET current_tier_id = ? WHERE user_id = ?";
+            jdbcTemplate.update(updateSql, tierId, userId);
+        } else {
+            String insertSql = "INSERT INTO user_loyalty_profiles (user_id, current_tier_id) VALUES (?, ?)";
+            jdbcTemplate.update(insertSql, userId, tierId);
+        }
+    }
+
+    @Override
+    public List<MembershipTierDto> getAllMembershipTiers() {
+        String sql = """
+            SELECT tier_id, tier_name, tier_rank, required_miles, required_flights, benefits
+            FROM membership_tiers
+            ORDER BY tier_rank
+        """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            MembershipTierDto dto = new MembershipTierDto();
+            dto.setTierId(UUID.fromString(rs.getString("tier_id")));
+            dto.setTierName(rs.getString("tier_name"));
+            dto.setTierRank(rs.getInt("tier_rank"));
+            dto.setRequiredMiles(rs.getInt("required_miles"));
+            dto.setRequiredFlights(rs.getInt("required_flights"));
+            dto.setBenefits(rs.getString("benefits"));
+            return dto;
+        });
+    }
+
+
 }

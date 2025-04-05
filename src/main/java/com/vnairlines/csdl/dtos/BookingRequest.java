@@ -13,7 +13,8 @@ public class BookingRequest {
     private String contactEmail;
     private String contactPhone;
     private BigDecimal totalPrice;
-    private Map<UUID, String> ticketClasses;
+    //private Map<UUID, String> ticketClasses;
+    private List<FlightBookingDetail> flightDetails;
 
     public BookingRequest() {
         // TODO Auto-generated constructor stub
@@ -21,7 +22,7 @@ public class BookingRequest {
 
     public BookingRequest(UUID userId, List<UUID> flightIds, String contactFirstName, String contactLastName,
             String contactEmail, String contactPhone, BigDecimal totalPrice, List<PassengerRequest> passengers,
-            Map<UUID, String> ticketClasses) {
+            List<FlightBookingDetail> flightDetails) {
         super();
         this.userId = userId;
         this.flightIds = flightIds;
@@ -31,7 +32,7 @@ public class BookingRequest {
         this.contactPhone = contactPhone;
         this.totalPrice = totalPrice;
         this.passengers = passengers;
-        this.ticketClasses = ticketClasses;
+        this.flightDetails = flightDetails;
     }
 
     private List<PassengerRequest> passengers;
@@ -100,11 +101,11 @@ public class BookingRequest {
         this.passengers = passengers;
     }
 
-    public Map<UUID, String> getTicketClasses() {
-        return ticketClasses;
+    public List<FlightBookingDetail> getFlightDetails() {
+        return flightDetails;
     }
 
-    public void setTicketClasses(Map<UUID, String> ticketClasses) {
-        this.ticketClasses = ticketClasses;
+    public void setFlightDetails(List<FlightBookingDetail> details) {
+        this.flightDetails = details;
     }
 }
