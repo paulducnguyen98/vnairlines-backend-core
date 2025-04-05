@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vnairlines.csdl.dtos.MembershipTierDto;
+import com.vnairlines.csdl.dtos.TierAssignmentRequest;
 import com.vnairlines.csdl.models.UserDto;
 import com.vnairlines.csdl.services.UserService;
 
@@ -46,4 +48,17 @@ public class UserController {
         UserDto createdUser = userService.createUser(user);
         return ResponseEntity.ok(createdUser);
     }
+
+    @PostMapping("/assign-tier")
+    public ResponseEntity<?> assignTierToUser(@RequestBody TierAssignmentRequest request) {
+        userService.assignTierToUser(request.getUserId(), request.getTierName());
+        return ResponseEntity.ok("Membership tier assigned successfully.");
+    }
+
+    @GetMapping("/tiers")
+    public ResponseEntity<List<MembershipTierDto>> listAllTiers() {
+        List<MembershipTierDto> tiers = userService.getAllMembershipTiers();
+        return ResponseEntity.ok(tiers);
+    }
+
 }

@@ -23,7 +23,7 @@ public interface FlightService {
     void deleteFlight(UUID id);
 
     List<FlightDetailDto> searchFlights(String departureAirportCode, String arrrivalAirportCode,
-            LocalDate departureDate, LocalDate returnDate, TicketClassType ticketClass);
+            LocalDate departureDate, LocalDate returnDate, TicketClassType ticketClass, int passengerCount);
 
     // SEAT
     List<SeatInventoryDto> getSeatInventoryByFlightId(UUID flightId);

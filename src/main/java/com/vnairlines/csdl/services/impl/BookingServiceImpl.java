@@ -5,6 +5,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.vnairlines.csdl.dtos.AirportSummary;
 import com.vnairlines.csdl.dtos.BookingRequest;
 import com.vnairlines.csdl.dtos.BookingResponse;
+import com.vnairlines.csdl.dtos.FlightBookingDetail;
 import com.vnairlines.csdl.dtos.FlightSummary;
 import com.vnairlines.csdl.dtos.PassengerResponse;
 import com.vnairlines.csdl.dtos.PaymentRequest;
@@ -49,10 +51,13 @@ public class BookingServiceImpl implements BookingService {
         // Validate user
         UUID tripReference = request.getFlightIds().size() > 1 ? UUID.randomUUID() : null;
 
-        for (UUID flightId : request.getFlightIds()) {
+        for (FlightBookingDetail detail : request.getFlightDetails()) {
+            UUID flightId = detail.getFlightId();
+            String ticketClass = detail.getTicketClass();
+            BigDecimal totalPrice = detail.getTotalPrice();
+
             flightService.getFlightById(flightId);
 
-            String ticketClass = request.getTicketClasses().get(flightId);
             if (ticketClass == null || ticketClass.isBlank()) {
                 throw new IllegalArgumentException("Ticket class not specified for flight " + flightId);
             }
@@ -66,23 +71,21 @@ public class BookingServiceImpl implements BookingService {
             booking.setContactLastName(request.getContactLastName());
             booking.setContactEmail(request.getContactEmail());
             booking.setContactPhone(request.getContactPhone());
-            booking.setTotalPrice(request.getTotalPrice());
+            booking.setTotalPrice(totalPrice);
             booking.setStatus("PENDING");
             booking.setCreatedAt(LocalDateTime.now());
 
-            String bookingSql = """
-                        INSERT INTO bookings (
-                            booking_id, user_id, booking_code,
-                            contact_first_name, contact_last_name,
-                            contact_email, contact_phone, total_price,
-                            status, created_at, trip_reference_id
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?::booking_status, ?, ?)
-                    """;
-
-            jdbcTemplate.update(bookingSql, booking.getBookingId(), booking.getUserId(), booking.getBookingCode(),
-                    booking.getContactFirstName(), booking.getContactLastName(), booking.getContactEmail(),
-                    booking.getContactPhone(), booking.getTotalPrice(), booking.getStatus(), booking.getCreatedAt(),
-                    tripReference);
+            jdbcTemplate.update("""
+                INSERT INTO bookings (
+                    booking_id, user_id, booking_code,
+                    contact_first_name, contact_last_name,
+                    contact_email, contact_phone, total_price,
+                    status, created_at, trip_reference_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?::booking_status, ?, ?)
+            """, booking.getBookingId(), booking.getUserId(), booking.getBookingCode(),
+                 booking.getContactFirstName(), booking.getContactLastName(), booking.getContactEmail(),
+                 booking.getContactPhone(), booking.getTotalPrice(), booking.getStatus(), booking.getCreatedAt(),
+                 tripReference);
 
             // Create passengers
             List<Passenger> passengers = request.getPassengers().stream().map(p -> {
@@ -101,43 +104,39 @@ public class BookingServiceImpl implements BookingService {
                 return passenger;
             }).collect(Collectors.toList());
 
-            String passengerSql = """
-                        INSERT INTO passengers (
-                            passenger_id, booking_id, first_name, last_name,
-                            email, phone_number, birth_date, passport_number, citizen_id,
-                            is_main_contact, created_at
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-                    """;
-
-            jdbcTemplate.batchUpdate(passengerSql, passengers, passengers.size(), (ps, passenger) -> {
-                ps.setObject(1, passenger.getPassengerId());
-                ps.setObject(2, passenger.getBookingId());
-                ps.setString(3, passenger.getFirstName());
-                ps.setString(4, passenger.getLastName());
-                ps.setString(5, passenger.getEmail());
-                ps.setString(6, passenger.getPhoneNumber());
-                ps.setObject(7, passenger.getBirthDate());
-                ps.setString(8, passenger.getPassportNumber());
-                ps.setString(9, passenger.getCitizenId());
-                ps.setBoolean(10, passenger.isMainContact());
-                ps.setObject(11, passenger.getCreatedAt());
+            jdbcTemplate.batchUpdate("""
+                INSERT INTO passengers (
+                    passenger_id, booking_id, first_name, last_name,
+                    email, phone_number, birth_date, passport_number, citizen_id,
+                    is_main_contact, created_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, passengers, passengers.size(), (ps, p) -> {
+                ps.setObject(1, p.getPassengerId());
+                ps.setObject(2, p.getBookingId());
+                ps.setString(3, p.getFirstName());
+                ps.setString(4, p.getLastName());
+                ps.setString(5, p.getEmail());
+                ps.setString(6, p.getPhoneNumber());
+                ps.setObject(7, p.getBirthDate());
+                ps.setString(8, p.getPassportNumber());
+                ps.setString(9, p.getCitizenId());
+                ps.setBoolean(10, p.isMainContact());
+                ps.setObject(11, p.getCreatedAt());
             });
-
-            String ticketSql = """
-                        INSERT INTO tickets (
-                            ticket_id, passenger_id, flight_id, ticket_number,
-                            ticket_class, price, status, created_at
-                        ) VALUES (?, ?, ?, ?, ?::ticket_class_type, ?, 'BOOKED', ?)
-                    """;
 
             for (Passenger passenger : passengers) {
                 UUID ticketId = UUID.randomUUID();
                 String ticketNumber = "TK" + ticketId.toString().replace("-", "").substring(0, 8).toUpperCase();
 
-                BigDecimal price = getFareForFlightAndClass(flightId, ticketClass);
+                BigDecimal farePrice = getFareForFlightAndClass(flightId, ticketClass); // or use totalPrice / passengers.size()
 
-                jdbcTemplate.update(ticketSql, ticketId, passenger.getPassengerId(), flightId, ticketNumber,
-                        ticketClass, price, LocalDateTime.now());
+                jdbcTemplate.update("""
+                    INSERT INTO tickets (
+                        ticket_id, passenger_id, flight_id, ticket_number,
+                        ticket_class, price, status, created_at
+                    ) VALUES (?, ?, ?, ?, ?::ticket_class_type, ?, 'BOOKED', ?)
+                """, ticketId, passenger.getPassengerId(), flightId, ticketNumber,
+                     ticketClass, farePrice, LocalDateTime.now());
             }
 
             responses.add(BookingResponse.fromEntity(booking, passengers, ticketClass));
@@ -278,6 +277,19 @@ public class BookingServiceImpl implements BookingService {
         }
 
         booking.setPassengers(passengers);
+        if (!passengers.isEmpty() && !passengers.get(0).getTickets().isEmpty()) {
+            // Set ticketClass from first available ticket
+            String ticketClass = passengers.get(0).getTickets().get(0).getTicketClass();
+            booking.setTicketClass(ticketClass);
+        }
+        
+        BigDecimal totalPrice = passengers.stream()
+                .flatMap(p -> p.getTickets().stream())
+                .map(TicketResponse::getPrice)
+                .filter(Objects::nonNull)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            booking.setPrice(totalPrice);
 
         String paymentSql = """
                     SELECT payment_id, amount, payment_method, status,
