@@ -17,4 +17,6 @@ public interface UserService {
     void assignTierToUser(UUID userId, String tierName);
 
     List<MembershipTierDto> getAllMembershipTiers();
+
+    UserDto updateUser(UserDto user);
 }

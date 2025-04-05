@@ -50,7 +50,6 @@ public class UserServiceImpl implements UserService {
 
             String tierId = rs.getString("current_tier_id");
             if (tierId != null) {
-                user.setTierId(tierId);
                 user.setTierName(rs.getString("tier_name"));
             }
 
@@ -90,7 +89,6 @@ public class UserServiceImpl implements UserService {
 
             String tierId = rs.getString("current_tier_id");
             if (tierId != null) {
-                user.setTierId(tierId);
                 user.setTierName(rs.getString("tier_name"));
             }
 
@@ -103,38 +101,92 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto createUser(UserDto user) {
         String insertUserSql = """
-            INSERT INTO users (
-                user_id, first_name, last_name, email, phone_number, address,
-                identity_number, identity_issued_date, identity_issued_place,
-                gender, created_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """;
+                    INSERT INTO users (
+                        user_id, first_name, last_name, email, phone_number, address,
+                        identity_number, identity_issued_date, identity_issued_place,
+                        gender, created_at
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """;
 
         UUID userId = UUID.randomUUID();
         java.sql.Timestamp createdAt = new java.sql.Timestamp(System.currentTimeMillis());
+
         user.setUserId(userId);
         user.setCreatedAt(createdAt);
-        jdbcTemplate.update(insertUserSql,
-            userId,
-            user.getFirstName(),
-            user.getLastName(),
-            user.getEmail(),
-            user.getPhoneNumber(),
-            user.getAddress(),
-            user.getIdentityNumber(),
-            user.getIdentityIssuedDate(),
-            user.getIdentityIssuedPlace(),
-            user.getGender(),
-            new java.sql.Timestamp(System.currentTimeMillis())
-        );
 
-        if (user.getTierId() != null) {
-            String insertLoyaltySql = """
-                INSERT INTO user_loyalty_profiles (user_id, current_tier_id)
-                VALUES (?, ?)
-            """;
-            jdbcTemplate.update(insertLoyaltySql, userId, user.getTierId());
+        jdbcTemplate.update(insertUserSql, userId, user.getFirstName(), user.getLastName(), user.getEmail(),
+                user.getPhoneNumber(), user.getAddress(), user.getIdentityNumber(), user.getIdentityIssuedDate(),
+                user.getIdentityIssuedPlace(), user.getGender(), createdAt);
+
+        if (user.getTierName() != null && !user.getTierName().isBlank()) {
+            // 🔍 Get tier_id from tier_name
+            String findTierSql = """
+                        SELECT tier_id FROM membership_tiers WHERE LOWER(tier_name) = LOWER(?)
+                    """;
+
+            List<UUID> tierIds = jdbcTemplate.query(findTierSql,
+                    (rs, rowNum) -> UUID.fromString(rs.getString("tier_id")), user.getTierName());
+
+            if (!tierIds.isEmpty()) {
+                UUID tierId = tierIds.get(0);
+                String insertLoyaltySql = """
+                            INSERT INTO user_loyalty_profiles (user_id, current_tier_id)
+                            VALUES (?, ?)
+                        """;
+                jdbcTemplate.update(insertLoyaltySql, userId, tierId);
+            } else {
+                throw new IllegalArgumentException("Tier name not found: " + user.getTierName());
+            }
         }
+
+        return user;
+    }
+
+    @Override
+    public UserDto updateUser(UserDto user) {
+        String updateUserSql = """
+                    UPDATE users
+                    SET first_name = ?, last_name = ?, email = ?, phone_number = ?, address = ?,
+                        identity_number = ?, identity_issued_date = ?, identity_issued_place = ?, gender = ?
+                    WHERE user_id = ?
+                """;
+
+        jdbcTemplate.update(updateUserSql, user.getFirstName(), user.getLastName(), user.getEmail(),
+                user.getPhoneNumber(), user.getAddress(), user.getIdentityNumber(), user.getIdentityIssuedDate(),
+                user.getIdentityIssuedPlace(), user.getGender(), user.getUserId());
+
+        // Optional: update loyalty tier if tierName is provided
+        if (user.getTierName() != null && !user.getTierName().isBlank()) {
+            // 🔍 Lookup tier_id from tier_name
+            String findTierSql = """
+                        SELECT tier_id FROM membership_tiers WHERE LOWER(tier_name) = LOWER(?)
+                    """;
+
+            List<UUID> tierIds = jdbcTemplate.query(findTierSql,
+                    (rs, rowNum) -> UUID.fromString(rs.getString("tier_id")), user.getTierName());
+
+            if (!tierIds.isEmpty()) {
+                UUID tierId = tierIds.get(0);
+
+                // ⬆️ Try to update existing record first
+                int updated = jdbcTemplate.update("""
+                            UPDATE user_loyalty_profiles
+                            SET current_tier_id = ?
+                            WHERE user_id = ?
+                        """, tierId, user.getUserId());
+
+                // ➕ If not exist, insert new record
+                if (updated == 0) {
+                    jdbcTemplate.update("""
+                                INSERT INTO user_loyalty_profiles (user_id, current_tier_id)
+                                VALUES (?, ?)
+                            """, user.getUserId(), tierId);
+                }
+            } else {
+                throw new IllegalArgumentException("Tier name not found: " + user.getTierName());
+            }
+        }
+
         return user;
     }
 
@@ -164,10 +216,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<MembershipTierDto> getAllMembershipTiers() {
         String sql = """
-            SELECT tier_id, tier_name, tier_rank, required_miles, required_flights, benefits
-            FROM membership_tiers
-            ORDER BY tier_rank
-        """;
+                    SELECT tier_id, tier_name, tier_rank, required_miles, required_flights, benefits
+                    FROM membership_tiers
+                    ORDER BY tier_rank
+                """;
 
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             MembershipTierDto dto = new MembershipTierDto();
@@ -180,6 +232,5 @@ public class UserServiceImpl implements UserService {
             return dto;
         });
     }
-
 
 }

@@ -12,7 +12,6 @@ public class UserDto {
     private String email;
     private String phoneNumber;
     private Timestamp createdAt;
-    private String tierId;
     private String tierName;
     private String address;
     private String gender;
@@ -25,7 +24,7 @@ public class UserDto {
     }
 
     public UserDto(UUID userId, String firstName, String lastName, String email, String phoneNumber,
-            Timestamp createdAt, String tierId, String tierName, String address, String gender, String identityNumber,
+            Timestamp createdAt, String tierName, String address, String gender, String identityNumber,
             Date identityIssuedDate, String identityIssuedPlace) {
         super();
         this.userId = userId;
@@ -34,7 +33,6 @@ public class UserDto {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.createdAt = createdAt;
-        this.tierId = tierId;
         this.tierName = tierName;
         this.address = address;
         this.gender = gender;
@@ -91,20 +89,12 @@ public class UserDto {
         this.lastName = lastName;
     }
 
-    public String getTierId() {
-        return tierId;
-    }
-
     public void setTierName(String tierName) {
         this.tierName = tierName;
     }
 
     public String getTierName() {
         return tierName;
-    }
-
-    public void setTierId(String tierId) {
-        this.tierId = tierId;
     }
 
     // Thêm getter/setter tương ứng

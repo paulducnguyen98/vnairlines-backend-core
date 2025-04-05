@@ -1,6 +1,7 @@
 package com.vnairlines.csdl.controllers;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,12 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.vnairlines.csdl.dtos.MembershipTierDto;
-import com.vnairlines.csdl.dtos.TierAssignmentRequest;
 import com.vnairlines.csdl.models.UserDto;
 import com.vnairlines.csdl.services.UserService;
 
@@ -49,10 +50,16 @@ public class UserController {
         return ResponseEntity.ok(createdUser);
     }
 
-    @PostMapping("/assign-tier")
-    public ResponseEntity<?> assignTierToUser(@RequestBody TierAssignmentRequest request) {
-        userService.assignTierToUser(request.getUserId(), request.getTierName());
-        return ResponseEntity.ok("Membership tier assigned successfully.");
+    @PutMapping("/{userId}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable UUID userId,
+            @RequestBody UserDto userDto) {
+        userDto.setUserId(userId);
+        userDto.setTierName(Optional.ofNullable(userDto.getTierName())
+                .filter(name -> !name.isBlank())
+                .orElse("Basic"));
+        UserDto updatedUser = userService.updateUser(userDto);
+        return ResponseEntity.ok(updatedUser);
     }
 
     @GetMapping("/tiers")
