@@ -75,10 +75,11 @@ public class FlightController {
     public ResponseEntity<List<FlightDetailDto>> searchFlights(@RequestParam String departureAirportCode,
             @RequestParam String arrivalAirportCode,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate departureDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrrivalDate,
-            @RequestParam(required = false) TicketClassType ticketClass) {
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate arrivalDate,
+            @RequestParam(required = false) TicketClassType ticketClass,
+            @RequestParam(required = false, defaultValue = "1") Integer passengerCount) {
         List<FlightDetailDto> flights = flightService.searchFlights(departureAirportCode, arrivalAirportCode,
-                departureDate, arrrivalDate, ticketClass);
+                departureDate, arrivalDate, ticketClass, passengerCount);
         return ResponseEntity.ok(flights);
     }
 }

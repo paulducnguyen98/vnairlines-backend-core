@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public class FlightDetailDto {
     private UUID flightId;
+    private UUID tripReferenceId;
     private String flightNumber;
     private Timestamp departureTime;
     private Timestamp arrivalTime;
@@ -128,4 +129,11 @@ public class FlightDetailDto {
         this.seatPerRow = seatPerRow;
     }
 
+    public UUID getTripReferenceId() {
+        return tripReferenceId;
+    }
+
+    public void setTripReferenceId(UUID tripReferenceId) {
+        this.tripReferenceId = tripReferenceId;
+    }
 }
