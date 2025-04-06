@@ -281,10 +281,10 @@ CREATE TABLE membership_tiers (
     benefits TEXT
 );
 
-
 CREATE TABLE user_loyalty_profiles (
     user_id UUID PRIMARY KEY REFERENCES users(user_id) ON DELETE CASCADE,
     current_tier_id UUID REFERENCES membership_tiers(tier_id),
+    membership_code VARCHAR(10) UNIQUE NOT NULL CHECK (membership_code ~ '^[0-9]{10}$'),
     total_miles INT DEFAULT 0,
     total_flights INT DEFAULT 0,
     miles_expiry_date DATE,
