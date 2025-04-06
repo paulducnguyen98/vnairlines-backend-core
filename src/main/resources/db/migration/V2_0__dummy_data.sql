@@ -74,6 +74,168 @@ INSERT INTO flights (
  (gen_random_uuid(), 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN44', 'd67263f2-4556-485d-bcc8-4fa21a8ecd9c', 'bfb8ad07-c8f8-42ff-8746-2b09de9b7f2c',
  '2025-04-03 09:00:00', '2025-04-03 10:30:00', 'f2090cdf-d1d2-4ee3-96dd-e0724dfe3808', 203, 950000.00);
 
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    'd6b8a51d-2fe3-455d-9a85-6cffde18a295', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN654', 'd67263f2-4556-485d-bcc8-4fa21a8ecd9c', 'ff5c16ad-5205-474c-84d6-a022bf621640',
+    '2025-04-07 11:00:00', '2025-04-07 13:00:00',
+    'f778b5ac-1c41-4c00-99c0-308396aa5af0', 203, 1717000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    '431bdcec-5013-419a-86af-2880208e6c50', 'b90beace-4afe-4839-bada-87f23c854888', 'BL420', '8e9e8210-8c76-48ae-9bae-794a438a6226', '69d759af-7967-407e-93fb-8378497a6376',
+    '2025-04-08 09:00:00', '2025-04-08 10:45:00',
+    '8171f645-f27c-42d2-89d6-30a534d81dbb', 180, 2362000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    '734b351a-90fb-4a82-915f-637eec4b29d6', 'b90beace-4afe-4839-bada-87f23c854888', 'BL174', 'a2b08c9c-b8a7-487f-ba14-5b6cfb5f3dee', '46eca2df-8ad3-472c-9988-47a2cf408ea9',
+    '2025-04-09 06:00:00', '2025-04-09 08:45:00',
+    '6ab5e013-4aa9-4234-85a9-348d0d18f8ca', 184, 753000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    'dbb5452e-0881-4d4b-8d50-caafd71fb04e', 'b90beace-4afe-4839-bada-87f23c854888', 'BL149', 'aa8be7c5-a3e4-4b31-acbb-4f31190fb75a', '4ea5702e-1eb1-4285-b188-013db96f8dd2',
+    '2025-04-10 10:00:00', '2025-04-10 13:00:00',
+    '8171f645-f27c-42d2-89d6-30a534d81dbb', 180, 1130000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    '1f57defe-8f38-4da5-b3d5-d6072b5b0e87', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN879', '69d759af-7967-407e-93fb-8378497a6376', 'be1489b8-5a86-4e5f-baa6-53a5ac035976',
+    '2025-04-11 11:00:00', '2025-04-11 12:30:00',
+    'f2090cdf-d1d2-4ee3-96dd-e0724dfe3808', 274, 1349000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    'c227f51f-ac2c-4850-82ff-71b5e42c3c53', 'b90beace-4afe-4839-bada-87f23c854888', 'BL649', 'cb43e9b7-12ca-434f-9253-0ab768de6b31', '8e0e4ae8-f512-4ba5-9ff0-53765ad6cb6a',
+    '2025-04-12 09:00:00', '2025-04-12 11:30:00',
+    'f778b5ac-1c41-4c00-99c0-308396aa5af0', 203, 2008000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    '1994a787-4e43-4af8-8f10-68980c839b23', 'b90beace-4afe-4839-bada-87f23c854888', 'BL198', 'aa8be7c5-a3e4-4b31-acbb-4f31190fb75a', '058640d1-abaa-4895-afd6-fcfcd893514f',
+    '2025-04-13 08:00:00', '2025-04-13 13:30:00',
+    '87d43521-eb7e-445a-b5d7-30a6cde0f067', 305, 2159000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    '38828dab-a3ad-4dfc-95f9-fc34ec554cb6', 'b90beace-4afe-4839-bada-87f23c854888', 'BL523', '3258edb3-b86f-4b3a-80b6-c159b9c50d34', '2ff8c3d0-165e-4b38-b830-3784dff70d8e',
+    '2025-04-14 09:00:00', '2025-04-14 10:30:00',
+    'f2090cdf-d1d2-4ee3-96dd-e0724dfe3808', 274, 771000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    '5536a34d-d1cc-425b-a457-20ee057217df', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN577', '69d759af-7967-407e-93fb-8378497a6376', '9c3e2cf1-d25c-4421-86cc-595e9ee32ea3',
+    '2025-04-15 07:00:00', '2025-04-15 08:30:00',
+    'f2090cdf-d1d2-4ee3-96dd-e0724dfe3808', 274, 1066000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    '299abf1b-c3df-4aae-a25b-2b9544a41096', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN718', 'ff5c16ad-5205-474c-84d6-a022bf621640', '95dc4a93-2639-48a6-8e3d-73f100cbe8c9',
+    '2025-04-16 12:00:00', '2025-04-16 17:30:00',
+    '8171f645-f27c-42d2-89d6-30a534d81dbb', 180, 741000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    'dd2930ed-1a75-4da3-8632-ff6da2262d6e', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN606', '8e9e8210-8c76-48ae-9bae-794a438a6226', 'bfb8ad07-c8f8-42ff-8746-2b09de9b7f2c',
+    '2025-04-17 12:00:00', '2025-04-17 16:15:00',
+    '6ab5e013-4aa9-4234-85a9-348d0d18f8ca', 184, 1605000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    'b8821c21-dce7-4e6f-8cfe-bb610c4a3fb4', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN485', '4ea5702e-1eb1-4285-b188-013db96f8dd2', 'be1489b8-5a86-4e5f-baa6-53a5ac035976',
+    '2025-04-18 12:00:00', '2025-04-18 15:45:00',
+    '8171f645-f27c-42d2-89d6-30a534d81dbb', 180, 964000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    '5bb14ab5-6cd6-4a42-bed2-117244cd10ff', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN855', '058640d1-abaa-4895-afd6-fcfcd893514f', '7235093c-53ba-48c0-a595-aac47705e4ae',
+    '2025-04-19 06:00:00', '2025-04-19 10:00:00',
+    'f2090cdf-d1d2-4ee3-96dd-e0724dfe3808', 274, 816000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    '1e4eaf0f-5d68-4902-aa80-5929e5794eef', 'b90beace-4afe-4839-bada-87f23c854888', 'BL782', '4ea5702e-1eb1-4285-b188-013db96f8dd2', '2ff8c3d0-165e-4b38-b830-3784dff70d8e',
+    '2025-04-20 12:00:00', '2025-04-20 17:00:00',
+    'f778b5ac-1c41-4c00-99c0-308396aa5af0', 203, 1173000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    'a172885d-c983-44a4-a613-2f122e73ff66', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN772', '617e5c37-d4c5-4d47-ad4e-a571a2436e9c', 'bfb8ad07-c8f8-42ff-8746-2b09de9b7f2c',
+    '2025-04-21 11:00:00', '2025-04-21 13:00:00',
+    'f2090cdf-d1d2-4ee3-96dd-e0724dfe3808', 274, 1689000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    'b44f6d81-bc02-4098-a6c5-277ec45488e0', 'b90beace-4afe-4839-bada-87f23c854888', 'BL894', '8e9e8210-8c76-48ae-9bae-794a438a6226', 'bfb8ad07-c8f8-42ff-8746-2b09de9b7f2c',
+    '2025-04-22 08:00:00', '2025-04-22 09:45:00',
+    'f2090cdf-d1d2-4ee3-96dd-e0724dfe3808', 274, 1659000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    'd455870a-8b77-4a70-818d-c0639913beea', 'b90beace-4afe-4839-bada-87f23c854888', 'BL673', '9c3e2cf1-d25c-4421-86cc-595e9ee32ea3', 'd67263f2-4556-485d-bcc8-4fa21a8ecd9c',
+    '2025-04-23 06:00:00', '2025-04-23 10:45:00',
+    '87d43521-eb7e-445a-b5d7-30a6cde0f067', 305, 2217000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    'e990c819-a75f-41ea-ae0c-aae4e7bf6f2d', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN668', '4ea5702e-1eb1-4285-b188-013db96f8dd2', '2ff8c3d0-165e-4b38-b830-3784dff70d8e',
+    '2025-04-24 08:00:00', '2025-04-24 10:45:00',
+    '8171f645-f27c-42d2-89d6-30a534d81dbb', 180, 1175000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    'c9edcbf1-93b5-413d-84d6-ca28be0b52b1', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN767', 'aa8be7c5-a3e4-4b31-acbb-4f31190fb75a', '7235093c-53ba-48c0-a595-aac47705e4ae',
+    '2025-04-25 11:00:00', '2025-04-25 14:30:00',
+    '87d43521-eb7e-445a-b5d7-30a6cde0f067', 305, 1735000.0
+);
+INSERT INTO flights (
+    flight_id, airline_id, flight_number, departure_airport_id, arrival_airport_id,
+    departure_time, arrival_time, aircraft_id, seat_capacity, base_price
+) VALUES (
+    '72e8cf81-04f4-427a-8f1f-c9fdc75a7b08', 'f848359c-2ada-47af-a83c-1fa713f671a0', 'VN202', '2547d070-3649-4d7c-99c9-00c048a306fc', '617e5c37-d4c5-4d47-ad4e-a571a2436e9c',
+    '2025-04-26 12:00:00', '2025-04-26 14:15:00',
+    '6ab5e013-4aa9-4234-85a9-348d0d18f8ca', 184, 848000.0
+);
+ 
+
 INSERT INTO membership_tiers (tier_id, tier_name, tier_rank, required_miles, required_flights, benefits)
 VALUES
     ('b85f04f9-538a-4c65-a5c8-e0b03b015b36', 'Basic',    1, 0,    0,    'Standard member benefits'),

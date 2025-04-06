@@ -57,12 +57,7 @@ public class PaymentServiceImpl implements PaymentService {
         LocalDateTime now = LocalDateTime.now();
 
         if (paymentDTO.getBookingId() != null) {
-            String sql = """
-                        INSERT INTO payments (
-                            payment_id, trip_reference_id, amount, payment_method,
-                            status, transaction_id, created_at
-                        ) VALUES (?, ?, ?, ?::payment_method_type, ?::payment_status_type, ?, ?)
-                    """;
+            // 🔄 Validate booking total
             BigDecimal bookingTotal = jdbcTemplate.queryForObject(
                     "SELECT total_price FROM bookings WHERE booking_id = ?", BigDecimal.class,
                     paymentDTO.getBookingId());
@@ -76,15 +71,25 @@ public class PaymentServiceImpl implements PaymentService {
                         "Payment amount must match booking total: " + bookingTotal);
             }
 
-            jdbcTemplate.update(sql, paymentId, paymentDTO.getTripReferenceId(), paymentDTO.getAmount(),
-                    paymentDTO.getPaymentMethod(), status.name(), transactionId, LocalDateTime.now());
+            // ✅ Insert with booking_id
+            String sql = """
+                        INSERT INTO payments (
+                            payment_id, booking_id, amount, payment_method,
+                            status, transaction_id, created_at
+                        ) VALUES (?, ?, ?, ?::payment_method_type, ?::payment_status_type, ?, ?)
+                    """;
 
+            jdbcTemplate.update(sql, paymentId, paymentDTO.getBookingId(), paymentDTO.getAmount(),
+                    paymentDTO.getPaymentMethod(), status.name(), transactionId, now);
+
+            // ✅ Also update status if needed
             if ("COMPLETED".equalsIgnoreCase(status.name())) {
                 jdbcTemplate.update("""
                             UPDATE bookings SET status = 'COMPLETED'
-                            WHERE trip_reference_id = ?
-                        """, paymentDTO.getTripReferenceId());
+                            WHERE booking_id = ?
+                        """, paymentDTO.getBookingId());
             }
+
         } else if (paymentDTO.getTripReferenceId() != null) {
             BigDecimal tripTotal = jdbcTemplate.queryForObject(
                     "SELECT SUM(total_price) FROM bookings WHERE trip_reference_id = ?", BigDecimal.class,
@@ -99,6 +104,7 @@ public class PaymentServiceImpl implements PaymentService {
                         "Payment amount must match total trip cost: " + tripTotal);
             }
 
+            // ✅ Insert with trip_reference_id
             String sql = """
                         INSERT INTO payments (
                             payment_id, trip_reference_id, amount, payment_method,

@@ -48,8 +48,7 @@ public class BookingServiceImpl implements BookingService {
     public List<BookingResponse> createRoundTripBooking(BookingRequest request) {
         List<BookingResponse> responses = new ArrayList<>();
 
-        // Validate user
-        UUID tripReference = request.getFlightIds().size() > 1 ? UUID.randomUUID() : null;
+        UUID tripReferenceId = request.getFlightDetails().size() > 1 ? UUID.randomUUID() : null;
 
         for (FlightBookingDetail detail : request.getFlightDetails()) {
             UUID flightId = detail.getFlightId();
@@ -64,7 +63,7 @@ public class BookingServiceImpl implements BookingService {
 
             Booking booking = new Booking();
             booking.setBookingId(UUID.randomUUID());
-            booking.setTripReferenceId(tripReference);
+            booking.setTripReferenceId(tripReferenceId);
             booking.setUserId(null);
             booking.setBookingCode(UUID.randomUUID().toString().substring(0, 8).toUpperCase());
             booking.setContactFirstName(request.getContactFirstName());
@@ -85,7 +84,7 @@ public class BookingServiceImpl implements BookingService {
             """, booking.getBookingId(), booking.getUserId(), booking.getBookingCode(),
                  booking.getContactFirstName(), booking.getContactLastName(), booking.getContactEmail(),
                  booking.getContactPhone(), booking.getTotalPrice(), booking.getStatus(), booking.getCreatedAt(),
-                 tripReference);
+                 tripReferenceId);
 
             // Create passengers
             List<Passenger> passengers = request.getPassengers().stream().map(p -> {
