@@ -2,6 +2,7 @@ package com.vnairlines.csdl.services.impl;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
@@ -157,7 +158,7 @@ public class UserServiceImpl implements UserService {
 
         // Optional: update loyalty tier if tierName is provided
         if (user.getTierName() != null && !user.getTierName().isBlank()) {
-            // 🔍 Lookup tier_id from tier_name
+            // Lookup tier_id from tier_name
             String findTierSql = """
                         SELECT tier_id FROM membership_tiers WHERE LOWER(tier_name) = LOWER(?)
                     """;
@@ -168,19 +169,20 @@ public class UserServiceImpl implements UserService {
             if (!tierIds.isEmpty()) {
                 UUID tierId = tierIds.get(0);
 
-                // ⬆️ Try to update existing record first
+                // Try to update existing record first
                 int updated = jdbcTemplate.update("""
                             UPDATE user_loyalty_profiles
                             SET current_tier_id = ?
                             WHERE user_id = ?
                         """, tierId, user.getUserId());
 
-                // ➕ If not exist, insert new record
+                // If not exist, insert new record
                 if (updated == 0) {
+                    String membershipCode = generateMembershipCode();
                     jdbcTemplate.update("""
-                                INSERT INTO user_loyalty_profiles (user_id, current_tier_id)
-                                VALUES (?, ?)
-                            """, user.getUserId(), tierId);
+                                INSERT INTO user_loyalty_profiles (user_id, current_tier_id, membership_code, miles_expiry_date)
+                            VALUES (?, ?, ?, NOW() + INTERVAL '12 months')
+                        """, user.getUserId(), tierId, membershipCode);
                 }
             } else {
                 throw new IllegalArgumentException("Tier name not found: " + user.getTierName());
@@ -188,6 +190,11 @@ public class UserServiceImpl implements UserService {
         }
 
         return user;
+    }
+
+    private String generateMembershipCode() {
+        long code = ThreadLocalRandom.current().nextLong(0, 10000000000L);
+        return String.format("%010d", code);
     }
 
     @Override
