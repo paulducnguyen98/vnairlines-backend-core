@@ -1,5 +1,6 @@
 package com.vnairlines.csdl.services.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
@@ -239,5 +240,21 @@ public class UserServiceImpl implements UserService {
             return dto;
         });
     }
+
+    @Override
+    public boolean isPhoneNumberTaken(String phoneNumber, UUID excludeUserId) {
+        String sql = "SELECT COUNT(*) FROM users WHERE phone_number = ?";
+        List<Object> params = new ArrayList<>();
+        params.add(phoneNumber);
+
+        if (excludeUserId != null) {
+            sql += " AND user_id <> ?";
+            params.add(excludeUserId);
+        }
+
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, params.toArray());
+        return count != null && count > 0;
+    }
+
 
 }

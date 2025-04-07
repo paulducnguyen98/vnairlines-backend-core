@@ -19,4 +19,6 @@ public interface UserService {
     List<MembershipTierDto> getAllMembershipTiers();
 
     UserDto updateUser(UserDto user);
+
+    boolean isPhoneNumberTaken(String phoneNumber, UUID excludeUserId);
 }
