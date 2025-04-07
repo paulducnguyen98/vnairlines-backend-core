@@ -9,36 +9,54 @@ public class MileTransactionDto {
     private Integer milesChange;
     private String reason;
     private LocalDateTime transactionTime;
+    private FlightSummary flight;
+
+    public FlightSummary getFlight() {
+        return flight;
+    }
+
+    public void setFlight(FlightSummary flight) {
+        this.flight = flight;
+    }
+
     public UUID getTransactionId() {
         return transactionId;
     }
+
     public void setTransactionId(UUID transactionId) {
         this.transactionId = transactionId;
     }
+
     public UUID getFlightId() {
         return flightId;
     }
+
     public void setFlightId(UUID flightId) {
         this.flightId = flightId;
     }
+
     public Integer getMilesChange() {
         return milesChange;
     }
+
     public void setMilesChange(Integer milesChange) {
         this.milesChange = milesChange;
     }
+
     public String getReason() {
         return reason;
     }
+
     public void setReason(String reason) {
         this.reason = reason;
     }
+
     public LocalDateTime getTransactionTime() {
         return transactionTime;
     }
+
     public void setTransactionTime(LocalDateTime transactionTime) {
         this.transactionTime = transactionTime;
     }
 
-    
 }
