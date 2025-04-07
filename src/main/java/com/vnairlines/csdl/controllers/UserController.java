@@ -55,9 +55,6 @@ public class UserController {
             @PathVariable UUID userId,
             @RequestBody UserDto userDto) {
         userDto.setUserId(userId);
-        userDto.setTierName(Optional.ofNullable(userDto.getTierName())
-                .filter(name -> !name.isBlank())
-                .orElse("Basic"));
         UserDto updatedUser = userService.updateUser(userDto);
         return ResponseEntity.ok(updatedUser);
     }
