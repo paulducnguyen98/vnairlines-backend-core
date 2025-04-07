@@ -248,7 +248,7 @@ public class UserServiceImpl implements UserService {
         params.add(phoneNumber);
 
         if (excludeUserId != null) {
-            sql += " AND user_id <> ?";
+            sql += " AND user_id <> ?::";
             params.add(excludeUserId);
         }
 
