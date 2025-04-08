@@ -277,8 +277,8 @@ public class UserServiceImpl implements UserService {
         Timestamp now = new Timestamp(System.currentTimeMillis());
 
         jdbcTemplate.update("""
-            INSERT INTO users (user_id, email, password, created_at)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO users (user_id, email, password_hash, created_at, first_name, last_name)
+            VALUES (?, ?, ?, ?, '', '')
         """, userId, request.getEmail(), hashedPassword, now);
 
         String accessToken = JwtUtil.generateToken(userId.toString(), request.getEmail());
