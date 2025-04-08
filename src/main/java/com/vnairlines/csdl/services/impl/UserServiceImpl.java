@@ -1,24 +1,36 @@
 package com.vnairlines.csdl.services.impl;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.vnairlines.csdl.dtos.CreateUserRequest;
+import com.vnairlines.csdl.dtos.LoginRequest;
+import com.vnairlines.csdl.dtos.LoginResponse;
 import com.vnairlines.csdl.dtos.MembershipTierDto;
+import com.vnairlines.csdl.dtos.SignUpRequest;
 import com.vnairlines.csdl.models.UserDto;
 import com.vnairlines.csdl.services.UserService;
+import com.vnairlines.csdl.util.JwtUtil;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final JdbcTemplate jdbcTemplate;
+    private final BCryptPasswordEncoder encoder;
 
-    public UserServiceImpl(JdbcTemplate jdbcTemplate) {
+    public UserServiceImpl(JdbcTemplate jdbcTemplate, BCryptPasswordEncoder encoder) {
         this.jdbcTemplate = jdbcTemplate;
+        this.encoder = encoder;
     }
 
     @Override
@@ -101,27 +113,26 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto createUser(UserDto user) {
+    public UserDto createUser(CreateUserRequest user) {
         String insertUserSql = """
                     INSERT INTO users (
                         user_id, first_name, last_name, email, phone_number, address,
                         identity_number, identity_issued_date, identity_issued_place,
-                        gender, created_at
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        gender, created_at, password_hash
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         UUID userId = UUID.randomUUID();
         java.sql.Timestamp createdAt = new java.sql.Timestamp(System.currentTimeMillis());
-
+        String hashedPassword = (user.getPassword() == null || user.getPassword().isBlank()) ? "" : encoder.encode(user.getPassword());
         user.setUserId(userId);
-        user.setCreatedAt(createdAt);
 
         jdbcTemplate.update(insertUserSql, userId, user.getFirstName(), user.getLastName(), user.getEmail(),
                 user.getPhoneNumber(), user.getAddress(), user.getIdentityNumber(), user.getIdentityIssuedDate(),
-                user.getIdentityIssuedPlace(), user.getGender(), createdAt);
+                user.getIdentityIssuedPlace(), user.getGender(), createdAt, hashedPassword);
 
         if (user.getTierName() != null && !user.getTierName().isBlank()) {
-            // 🔍 Get tier_id from tier_name
+            // Get tier_id from tier_name
             String findTierSql = """
                         SELECT tier_id FROM membership_tiers WHERE LOWER(tier_name) = LOWER(?)
                     """;
@@ -140,8 +151,12 @@ public class UserServiceImpl implements UserService {
                 throw new IllegalArgumentException("Tier name not found: " + user.getTierName());
             }
         }
-
-        return user;
+        UserDto result = UserDto.fromCreateUserRequest(user);
+        if (!(user.getPassword() == null || user.getPassword().isBlank())) {
+            String accessToken = JwtUtil.generateToken(result.getUserId().toString(), user.getEmail());
+            result.setAccessToken(accessToken);
+        } 
+        return result;
     }
 
     @Override
@@ -189,7 +204,6 @@ public class UserServiceImpl implements UserService {
                 throw new IllegalArgumentException("Tier name not found: " + user.getTierName());
             }
         }
-
         return user;
     }
 
@@ -256,5 +270,57 @@ public class UserServiceImpl implements UserService {
         return count != null && count > 0;
     }
 
+    @Override
+    public UserDto signUp(SignUpRequest request) {
+        UUID userId = UUID.randomUUID();
+        String hashedPassword = encoder.encode(request.getPassword());
+        Timestamp now = new Timestamp(System.currentTimeMillis());
+
+        jdbcTemplate.update("""
+            INSERT INTO users (user_id, email, password, created_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, userId, request.getEmail(), hashedPassword, now);
+
+        String accessToken = JwtUtil.generateToken(userId.toString(), request.getEmail());
+        UserDto dto = new UserDto();
+        dto.setUserId(userId);
+        dto.setEmail(request.getEmail());
+        dto.setAccessToken(accessToken);
+        return dto;
+    }
+
+    @Override
+    public LoginResponse login(LoginRequest request) {
+        UserDto user = jdbcTemplate.queryForObject(
+                "SELECT * FROM users WHERE email = ?",
+                userRowMapper,
+                request.getEmail()
+        );
+
+        if (user == null || !encoder.matches(request.getPassword(), user.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        }
+
+        String token = JwtUtil.generateToken(user.getUserId().toString(), user.getEmail());
+
+        return new LoginResponse(user.getUserId(), user.getEmail(), token);
+    }
+
+    private static final RowMapper<UserDto> userRowMapper = (rs, rowNum) -> {
+        UserDto user = new UserDto();
+        user.setUserId(UUID.fromString(rs.getString("user_id")));
+        user.setFirstName(rs.getString("first_name"));
+        user.setLastName(rs.getString("last_name"));
+        user.setEmail(rs.getString("email"));
+        user.setPhoneNumber(rs.getString("phone_number"));
+        user.setAddress(rs.getString("address"));
+        user.setGender(rs.getString("gender"));
+        user.setIdentityNumber(rs.getString("identity_number"));
+        user.setIdentityIssuedDate(rs.getDate("identity_issued_date"));
+        user.setIdentityIssuedPlace(rs.getString("identity_issued_place"));
+        user.setCreatedAt(rs.getTimestamp("created_at"));
+        user.setPassword(rs.getString("password_hash")); // password is required to check credentials
+        return user;
+    };
 
 }

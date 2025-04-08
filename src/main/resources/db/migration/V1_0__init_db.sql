@@ -49,7 +49,8 @@ CREATE TABLE users (
     identity_number VARCHAR(50),
     identity_issued_date DATE,
     identity_issued_place VARCHAR(255),
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    password_hash TEXT
 );
 
 CREATE INDEX idx_users_email ON users(email);

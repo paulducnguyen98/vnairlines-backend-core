@@ -4,6 +4,10 @@ import java.sql.Date;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.vnairlines.csdl.dtos.CreateUserRequest;
+
 public class UserDto {
 
     private UUID userId;
@@ -18,6 +22,10 @@ public class UserDto {
     private String identityNumber;
     private Date identityIssuedDate;
     private String identityIssuedPlace;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String password;
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private String accessToken;
 
     public UserDto() {
         super();
@@ -39,6 +47,14 @@ public class UserDto {
         this.identityNumber = identityNumber;
         this.identityIssuedDate = identityIssuedDate;
         this.identityIssuedPlace = identityIssuedPlace;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
     }
 
     public UUID getUserId() {
@@ -97,6 +113,14 @@ public class UserDto {
         return tierName;
     }
 
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     // Thêm getter/setter tương ứng
 
     public String getAddress() {
@@ -139,4 +163,20 @@ public class UserDto {
         this.gender = gender;
     }
 
+    public static UserDto fromCreateUserRequest(CreateUserRequest req) {
+        UserDto user = new UserDto();
+        user.setUserId(req.getUserId());
+        user.setFirstName(req.getFirstName());
+        user.setLastName(req.getLastName());
+        user.setEmail(req.getEmail());
+        user.setPhoneNumber(req.getPhoneNumber());
+        user.setAddress(req.getAddress());
+        user.setGender(req.getGender());
+        user.setIdentityNumber(req.getIdentityNumber());
+        user.setIdentityIssuedDate(req.getIdentityIssuedDate());
+        user.setIdentityIssuedPlace(req.getIdentityIssuedPlace());
+        user.setTierName(req.getTierName());
+        user.setUserId(req.getUserId());
+        return user;
+    }
 }
