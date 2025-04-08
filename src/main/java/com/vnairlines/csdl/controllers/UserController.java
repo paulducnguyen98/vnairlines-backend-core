@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.vnairlines.csdl.dtos.CreateUserRequest;
 import com.vnairlines.csdl.dtos.MembershipTierDto;
 import com.vnairlines.csdl.models.UserDto;
 import com.vnairlines.csdl.services.UserService;
@@ -45,7 +46,7 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserDto user) {
+    public ResponseEntity<UserDto> createUser(@RequestBody CreateUserRequest user) {
         UserDto createdUser = userService.createUser(user);
         return ResponseEntity.ok(createdUser);
     }
